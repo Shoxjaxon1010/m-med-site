@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M-MED Dorixonalar Tarmog'i</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --red:#D42B2B;
+      --red-dark:#A81E1E;
+      --red-light:#F5E8E8;
+      --white:#FFFFFF;
+      --bg:#F7F8FA;
+      --surface:#FFFFFF;
+      --border:#E8EAED;
+      --text:#0F1923;
+      --text-mid:#4A5568;
+      --text-soft:#8896A6;
+      --green:#16A34A;
+      --green-bg:#F0FDF4;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.5}
+
+    /* ── NAV ── */
+    .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
+    .nav-logo{display:flex;align-items:center;gap:10px}
+    .nav-logo-icon{width:34px;height:34px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .nav-logo-icon svg{width:20px;height:20px}
+    .nav-logo-text{font-family:'Outfit',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text);letter-spacing:0.5px}
+    .nav-phone{display:flex;align-items:center;gap:8px}
+    .nav-phone a{color:var(--red);font-weight:600;font-size:0.9rem;text-decoration:none}
+    .lang-bar{display:flex;gap:4px}
+    .lang-btn{padding:5px 12px;border-radius:6px;border:1.5px solid var(--border);background:transparent;color:var(--text-mid);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:'Inter',sans-serif}
+    .lang-btn.active{background:var(--red);color:white;border-color:var(--red)}
+
+    /* ── HERO ── */
+    .hero{min-height:100vh;background:linear-gradient(135deg,#8B0000 0%,#C41010 40%,#D42B2B 70%,#B01818 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 60px;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:100px;padding:6px 16px;color:rgba(255,255,255,0.9);font-size:0.8rem;font-weight:500;margin-bottom:24px;letter-spacing:0.05em;text-transform:uppercase}
+    .hero-pulse{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 0 rgba(74,222,128,0.4);animation:pulse-ring 2s infinite}
+    @keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(74,222,128,0.5)}70%{box-shadow:0 0 0 8px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+    .hero-logo{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:28px}
+    .hero-logo-circle{width:72px;height:72px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+    .hero-logo-circle svg{width:40px;height:40px}
+    .hero-brand{font-family:'Outfit',sans-serif;font-size:2.4rem;font-weight:800;color:white;letter-spacing:1px}
+    .hero h1{font-family:'Outfit',sans-serif;font-size:clamp(1.6rem,5vw,2.6rem);font-weight:700;color:white;line-height:1.2;margin-bottom:12px}
+    .hero-sub{font-size:0.95rem;color:rgba(255,255,255,0.65);margin-bottom:36px;letter-spacing:0.06em;text-transform:uppercase}
+    .hero-cta{display:inline-flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:14px 32px;color:var(--red);font-weight:700;font-size:1.05rem;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,0.2);transition:all 0.2s}
+    .hero-cta:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.25)}
+    .hero-bottom{position:absolute;bottom:0;left:0;right:0;height:60px;background:var(--bg);clip-path:ellipse(55% 100% at 50% 100%)}
+
+    /* ── CATALOG ── */
+    .catalog{padding:60px 0 40px;background:var(--bg)}
+    .catalog .container{max-width:960px;margin:0 auto;padding:0 24px}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:gap}
+    .section-title-wrap{display:flex;align-items:center;gap:12px}
+    .section-icon{width:40px;height:40px;background:var(--red-light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+    .section-title{font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text)}
+    .section-subtitle{font-size:0.85rem;color:var(--text-soft);margin-top:2px}
+
+    /* BRANCH FILTER */
+    .branch-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+    .branch-btn{padding:8px 18px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-mid);font-weight:500;font-size:0.85rem;cursor:pointer;transition:all 0.15s;font-family:'Inter',sans-serif}
+    .branch-btn.active{background:var(--red);color:white;border-color:var(--red)}
+    .branch-btn:hover:not(.active){border-color:var(--red);color:var(--red)}
+
+    /* SEARCH */
+    .search-bar{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:20px;transition:border 0.2s}
+    .search-bar:focus-within{border-color:var(--red)}
+    .search-bar svg{color:var(--text-soft);flex-shrink:0}
+    .search-input{flex:1;border:none;outline:none;font-size:0.95rem;font-family:'Inter',sans-serif;color:var(--text);background:transparent}
+    .search-input::placeholder{color:var(--text-soft)}
+
+    /* API WARNING */
+    .api-warning{background:#FFF9C4;border:1px solid #F9A825;border-radius:8px;padding:10px 16px;font-size:0.85rem;color:#795548;margin-bottom:16px;display:none}
+
+    /* TABLE */
+    .med-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .med-table{width:100%;border-collapse:collapse}
+    .med-table thead th{background:#F8F9FB;padding:12px 16px;text-align:left;font-size:0.78rem;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border)}
+    .med-table tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s}
+    .med-table tbody tr:last-child{border-bottom:none}
+    .med-table tbody tr:hover{background:#FDF5F5}
+    .med-table td{padding:13px 16px;font-size:0.88rem;vertical-align:middle}
+    .med-name-cell{font-weight:500;color:var(--text);max-width:300px}
+    .med-branch-tag{display:inline-block;padding:2px 8px;border-radius:4px;background:var(--red-light);color:var(--red);font-size:0.72rem;font-weight:600;margin-top:4px}
+    .med-price-cell{font-weight:700;color:var(--red);white-space:nowrap;font-size:0.95rem}
+    .med-status-cell{white-space:nowrap}
+    .status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;background:var(--green-bg);color:var(--green);font-size:0.75rem;font-weight:600}
+    .status-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+    .call-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--red);color:white;border-radius:6px;text-decoration:none;font-size:0.8rem;font-weight:600;white-space:nowrap;transition:background 0.15s}
+    .call-btn:hover{background:var(--red-dark)}
+    .empty-state{padding:48px 24px;text-align:center;color:var(--text-soft);font-size:0.9rem}
+    .empty-icon{font-size:2.5rem;margin-bottom:12px;opacity:0.4}
+
+    /* ── BRANCHES ── */
+    .branches-section{padding:60px 0;background:white}
+    .branches-section .container{max-width:960px;margin:0 auto;padding:0 24px}
+    .branches-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:28px}
+    .branch-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px;text-decoration:none;color:inherit;transition:all 0.2s;display:flex;gap:14px;align-items:flex-start}
+    .branch-card:hover{border-color:var(--red);box-shadow:0 4px 20px rgba(212,43,43,0.1);transform:translateY(-2px)}
+    .branch-num{width:44px;height:44px;min-width:44px;border-radius:10px;background:var(--red-light);display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:700;font-size:1.1rem;color:var(--red)}
+    .branch-card:hover .branch-num{background:var(--red);color:white}
+    .branch-info h3{font-weight:600;font-size:0.95rem;margin-bottom:4px}
+    .branch-time{font-size:0.8rem;color:var(--red);font-weight:500}
+    .branch-loc{font-size:0.8rem;color:var(--text-soft);margin-top:2px}
+
+    /* ── CONTACTS ── */
+    .contacts-section{padding:60px 0;background:var(--bg)}
+    .contacts-section .container{max-width:960px;margin:0 auto;padding:0 24px}
+    .contacts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:28px}
+    .contact-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;text-decoration:none;color:inherit;transition:all 0.2s;display:flex;align-items:center;gap:14px}
+    .contact-card:hover{border-color:var(--red);transform:translateY(-1px);box-shadow:0 4px 16px rgba(212,43,43,0.08)}
+    .contact-icon-wrap{width:42px;height:42px;border-radius:10px;background:var(--red-light);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+    .contact-card:hover .contact-icon-wrap{background:var(--red)}
+    .contact-label{font-weight:600;font-size:0.9rem}
+    .contact-sub{font-size:0.78rem;color:var(--text-soft);margin-top:2px}
+    .contact-arrow{margin-left:auto;color:var(--text-soft);font-size:1rem}
+
+    /* ── FOOTER ── */
+    footer{background:#0F1923;color:rgba(255,255,255,0.45);text-align:center;padding:32px 24px;font-size:0.82rem}
+    footer strong{color:rgba(255,255,255,0.8)}
+    footer a{color:rgba(255,255,255,0.6);text-decoration:none}
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes heartbeat{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,0.4)}14%{transform:scale(1.1)}28%{transform:scale(1)}42%{transform:scale(1.06)}70%{transform:scale(1);box-shadow:0 0 0 16px rgba(255,255,255,0)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+    @keyframes pulseGlow{0%{box-shadow:0 0 0 0 rgba(212,43,43,0.3)}70%{box-shadow:0 0 0 10px rgba(212,43,43,0)}100%{box-shadow:0 0 0 0 rgba(212,43,43,0)}}
+    .fade-up{animation:fadeUp 0.5s ease both}
+    .fade-down{animation:fadeDown 0.5s ease both}
+    .fade-in{animation:fadeIn 0.6s ease both}
+
+    /* Hero animations */
+    .hero-badge{animation:fadeDown 0.6s 0.1s ease both}
+    .hero-logo{animation:fadeDown 0.7s 0.2s ease both}
+    .hero h1{animation:fadeDown 0.7s 0.3s ease both}
+    .hero-sub{animation:fadeDown 0.7s 0.4s ease both}
+    .hero-cta{animation:fadeUp 0.7s 0.5s ease both}
+    .hero-logo-circle{animation:heartbeat 2s ease-in-out infinite}
+
+    /* Branch cards stagger */
+    .branch-card:nth-child(1){animation:fadeUp 0.5s 0.1s ease both}
+    .branch-card:nth-child(2){animation:fadeUp 0.5s 0.2s ease both}
+    .branch-card:nth-child(3){animation:fadeUp 0.5s 0.3s ease both}
+
+    /* Contact cards stagger */
+    .contact-card:nth-child(1){animation:fadeUp 0.5s 0.1s ease both}
+    .contact-card:nth-child(2){animation:fadeUp 0.5s 0.2s ease both}
+    .contact-card:nth-child(3){animation:fadeUp 0.5s 0.3s ease both}
+
+    /* CTA pulse */
+    .hero-cta{animation:fadeUp 0.7s 0.5s ease both, pulseGlow 2.5s 1.5s ease infinite}
+
+    /* Table rows */
+    .med-table tbody tr{opacity:0;animation:fadeUp 0.3s ease forwards}
+    .med-table tbody tr:nth-child(1){animation-delay:0.05s}
+    .med-table tbody tr:nth-child(2){animation-delay:0.10s}
+    .med-table tbody tr:nth-child(3){animation-delay:0.15s}
+    .med-table tbody tr:nth-child(4){animation-delay:0.20s}
+    .med-table tbody tr:nth-child(5){animation-delay:0.25s}
+    .med-table tbody tr:nth-child(n+6){animation-delay:0.30s}
+
+    /* Nav slide in */
+    .nav{animation:fadeDown 0.5s ease both}
+
+    /* Scroll reveal */
+    .section-title-wrap{animation:slideIn 0.5s ease both}
+
+    @media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms !important;transition-duration:0.01ms !important}}
+
+    @media(max-width:640px){
+      .nav-phone{display:none}
+      .hero-brand{font-size:1.8rem}
+      .med-table thead th:nth-child(2){display:none}
+      .med-table td:nth-child(2){display:none}
+      .section-header{flex-direction:column;align-items:flex-start;gap:12px}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="3" width="4" height="18" rx="2" fill="white"/>
+          <rect x="3" y="10" width="18" height="4" rx="2" fill="white"/>
+        </svg>
+      </div>
+      <span class="nav-logo-text">M-MED</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="nav-phone">
+        <a href="tel:+998995680405">📞 +998 99 568-04-05</a>
+      </div>
+      <div class="lang-bar">
+        <button class="lang-btn active" onclick="setLang('uz')">UZ</button>
+        <button class="lang-btn" onclick="setLang('ru')">RU</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="hero-pulse"></span>
+      <span data-uz="3 ta filial ishlayapti" data-ru="3 филиала работают">3 ta filial ishlayapti</span>
+    </div>
+    <div class="hero-logo">
+      <div class="hero-logo-circle">
+        <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="23" y="8" width="14" height="44" rx="7" fill="#D42B2B"/>
+          <rect x="8" y="23" width="44" height="14" rx="7" fill="#D42B2B"/>
+        </svg>
+      </div>
+      <span class="hero-brand">M-MED</span>
+    </div>
+    <h1 data-uz="Dorixonalar Tarmog'i" data-ru="Сеть Аптек">Dorixonalar Tarmog'i</h1>
+    <p class="hero-sub" data-uz="Sog'liq — eng qimmatli boylik" data-ru="Здоровье — самое ценное богатство">Sog'liq — eng qimmatli boylik</p>
+    <a href="tel:+998995680405" class="hero-cta">📞 +998 99 568-04-05</a>
+    <div class="hero-bottom"></div>
+  </section>
+
+  <!-- CATALOG -->
+  <section class="catalog" id="catalog">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon">💊</div>
+          <div>
+            <div class="section-title" data-uz="Dorilar katalogi" data-ru="Каталог лекарств">Dorilar katalogi</div>
+            <div class="section-subtitle" data-uz="Filial tanlang va dori nomini kiriting" data-ru="Выберите филиал и введите название">Filial tanlang va dori nomini kiriting</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="branch-filter">
+        <button class="branch-btn active" onclick="selectBranch(6, this)" data-uz="🌿 Yangiariq" data-ru="🌿 Янгиарик">🌿 Yangiariq</button>
+        <button class="branch-btn" onclick="selectBranch(4, this)" data-uz="🏥 Sevinch Klinika" data-ru="🏥 Севинч Клиника">🏥 Sevinch Klinika</button>
+        <button class="branch-btn" onclick="selectBranch(3, this)" data-uz="👶 Bolalar shifoxonasi" data-ru="👶 Детская больница">👶 Bolalar shifoxonasi</button>
+      </div>
+
+      <div id="api-warning" class="api-warning">
+        ⚠️ <span data-uz="Server hozir ishlamayapti" data-ru="Сервер недоступен">Server hozir ishlamayapti</span>
+      </div>
+
+      <div class="search-bar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input class="search-input" type="text" id="search-input"
+          data-uz-placeholder="Dori nomini kiriting..."
+          data-ru-placeholder="Введите название лекарства..."
+          placeholder="Dori nomini kiriting..."
+          oninput="filterMedicines(this.value)"/>
+      </div>
+
+      <div class="med-table-wrap">
+        <table class="med-table">
+          <thead>
+            <tr>
+              <th data-uz="Nomi" data-ru="Название">Nomi</th>
+              <th data-uz="Filial" data-ru="Филиал">Filial</th>
+              <th data-uz="Narxi" data-ru="Цена">Narxi</th>
+              <th data-uz="Holati" data-ru="Статус">Holati</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="medicines-grid">
+            <tr><td colspan="5" class="empty-state"><div class="empty-icon">🔍</div><div data-uz="Dori nomini kiriting" data-ru="Введите название лекарства">Dori nomini kiriting</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRANCHES -->
+  <section class="branches-section" id="branches">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="section-icon">📍</div>
+        <div>
+          <div class="section-title" data-uz="Filiallarimiz" data-ru="Наши филиалы">Filiallarimiz</div>
+          <div class="section-subtitle" data-uz="Xaritada ochish uchun bosing" data-ru="Нажмите чтобы открыть на карте">Xaritada ochish uchun bosing</div>
+        </div>
+      </div>
+      <div class="branches-grid">
+        <a class="branch-card" href="https://yandex.ru/navi?whatshere[zoom]=18&whatshere[point]=60.602814,41.372416" target="_blank">
+          <div class="branch-num">1</div>
+          <div class="branch-info">
+            <h3 data-uz="🌿 Yangiariq" data-ru="🌿 Янгиарик">🌿 Yangiariq</h3>
+            <div class="branch-time" data-uz="⏰ 24/7 ishlaydi" data-ru="⏰ Работает 24/7">⏰ 24/7 ishlaydi</div>
+            <div class="branch-loc" data-uz="📍 Xaritada ko'rish" data-ru="📍 Открыть на карте">📍 Xaritada ko'rish</div>
+          </div>
+        </a>
+        <a class="branch-card" href="https://yandex.ru/navi?whatshere[zoom]=18&whatshere[point]=60.635948,41.549473" target="_blank">
+          <div class="branch-num">2</div>
+          <div class="branch-info">
+            <h3 data-uz="🏥 Sevinch Klinika" data-ru="🏥 Клиника Севинч">🏥 Sevinch Klinika</h3>
+            <div class="branch-time" data-uz="⏰ 09:00 – 00:00" data-ru="⏰ 09:00 – 00:00">⏰ 09:00 – 00:00</div>
+            <div class="branch-loc" data-uz="📍 Xaritada ko'rish" data-ru="📍 Открыть на карте">📍 Xaritada ko'rish</div>
+          </div>
+        </a>
+        <a class="branch-card" href="https://yandex.ru/navi?whatshere[zoom]=18&whatshere[point]=60.627438,41.565283" target="_blank">
+          <div class="branch-num">3</div>
+          <div class="branch-info">
+            <h3 data-uz="👶 Bolalar shifoxonasi" data-ru="👶 Детская больница">👶 Bolalar shifoxonasi</h3>
+            <div class="branch-time" data-uz="⏰ 09:00 – 00:00" data-ru="⏰ 09:00 – 00:00">⏰ 09:00 – 00:00</div>
+            <div class="branch-loc" data-uz="📍 Xaritada ko'rish" data-ru="📍 Открыть на карте">📍 Xaritada ko'rish</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTS -->
+  <section class="contacts-section" id="contacts">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="section-icon">💬</div>
+        <div>
+          <div class="section-title" data-uz="Bog'lanish" data-ru="Контакты">Bog'lanish</div>
+          <div class="section-subtitle" data-uz="Biz bilan bog'laning" data-ru="Свяжитесь с нами">Biz bilan bog'laning</div>
+        </div>
+      </div>
+      <div class="contacts-grid">
+        <a href="https://wa.me/998995680405" target="_blank" class="contact-card">
+          <div class="contact-icon-wrap">💬</div>
+          <div>
+            <div class="contact-label">WhatsApp</div>
+            <div class="contact-sub">+998 99 568-04-05</div>
+          </div>
+          <span class="contact-arrow">→</span>
+        </a>
+        <a href="https://t.me/m_med_pharm" target="_blank" class="contact-card">
+          <div class="contact-icon-wrap">✈️</div>
+          <div>
+            <div class="contact-label">Telegram</div>
+            <div class="contact-sub">@m_med_pharm</div>
+          </div>
+          <span class="contact-arrow">→</span>
+        </a>
+        <a href="https://www.instagram.com/mmed_pharm" target="_blank" class="contact-card">
+          <div class="contact-icon-wrap">📸</div>
+          <div>
+            <div class="contact-label">Instagram</div>
+            <div class="contact-sub" data-uz="@mmed_pharm — yangiliklar" data-ru="@mmed_pharm — новости">@mmed_pharm — yangiliklar</div>
+          </div>
+          <span class="contact-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 <strong>M-MED Dorixonalar Tarmog'i</strong></p>
+    <p style="margin-top:6px"><a href="tel:+998995680405">+998 99 568-04-05</a></p>
+  </footer>
+
+  <script>
+    const API_URL = 'https://rink-atrocious-lushly.ngrok-free.dev';
+    let currentLang = 'uz';
+    let currentBranch = 6;
+    let allMedicines = [];
+
+    function setLang(lang){
+      currentLang = lang;
+      document.querySelectorAll('[data-uz]').forEach(el=>{
+        el.textContent = el.getAttribute('data-'+lang);
+      });
+      document.querySelectorAll('[data-uz-placeholder]').forEach(el=>{
+        el.placeholder = el.getAttribute('data-'+lang+'-placeholder');
+      });
+      document.querySelectorAll('.lang-btn').forEach(btn=>{
+        btn.classList.toggle('active', btn.textContent===lang.toUpperCase());
+      });
+      if(allMedicines.length) renderMedicines(allMedicines);
+    }
+
+    function selectBranch(branchId, btn){
+      currentBranch = branchId;
+      document.querySelectorAll('.branch-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      loadMedicines();
+    }
+
+    async function loadMedicines(){
+      const tbody = document.getElementById('medicines-grid');
+      const searchVal = document.getElementById('search-input').value.trim();
+      if(!searchVal){
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-icon">🔍</div><div>'+(currentLang==='ru'?'Введите название лекарства':'Dori nomini kiriting')+'</div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div>'+(currentLang==='ru'?'Поиск...':'Qidirilmoqda...')+'</div></td></tr>';
+      try {
+        let url = API_URL+'/medicines?limit=100&search='+encodeURIComponent(searchVal);
+        if(currentBranch) url += '&branch='+currentBranch;
+        const res = await fetch(url,{headers:{'ngrok-skip-browser-warning':'true'}});
+        allMedicines = await res.json();
+        if(!Array.isArray(allMedicines)) allMedicines = [];
+        document.getElementById('api-warning').style.display = 'none';
+      } catch(e){
+        document.getElementById('api-warning').style.display = 'block';
+        allMedicines = [];
+      }
+      renderMedicines(allMedicines);
+    }
+
+    function renderMedicines(list){
+      const tbody = document.getElementById('medicines-grid');
+      if(!list.length){
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-icon">😔</div><div>'+(currentLang==='ru'?'Ничего не найдено':'Hech narsa topilmadi')+'</div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(function(m){
+        var branchName = currentLang==='ru' ? (m.branch_ru||'') : (m.branch_uz||'');
+        return '<tr class="fade-up">'+
+          '<td class="med-name-cell">'+m.name+(branchName?'<br><span class="med-branch-tag">'+branchName+'</span>':'')+'</td>'+
+          '<td>'+(branchName?'<span style="font-size:0.82rem;color:var(--text-mid)">'+branchName+'</span>':'—')+'</td>'+
+          '<td class="med-price-cell">'+Number(m.price).toLocaleString()+" so'm"+'</td>'+
+          '<td class="med-status-cell"><span class="status-badge"><span class="status-dot"></span>'+(currentLang==='ru'?'В наличии':'Mavjud')+'</span></td>'+
+          '<td><a href="tel:+998995680405" class="call-btn">📞 '+(currentLang==='ru'?'Звонить':'Qo\'ng\'iroq')+'</a></td>'+
+        '</tr>';
+      }).join('');
+    }
+
+    function filterMedicines(){
+      clearTimeout(window._t);
+      window._t = setTimeout(loadMedicines, 450);
+    }
+
+    document.getElementById('search-input').addEventListener('input', filterMedicines);
+  </script>
+
+</body>
+</html>
