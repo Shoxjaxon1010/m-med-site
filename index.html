@@ -248,9 +248,9 @@
       </div>
 
       <div class="branch-filter">
-        <button class="branch-btn active" onclick="selectBranch(6, this)" data-uz="🌿 Yangiariq" data-ru="🌿 Янгиарик">🌿 Yangiariq</button>
-        <button class="branch-btn" onclick="selectBranch(4, this)" data-uz="🏥 Sevinch Klinika" data-ru="🏥 Севинч Клиника">🏥 Sevinch Klinika</button>
-        <button class="branch-btn" onclick="selectBranch(3, this)" data-uz="👶 Bolalar shifoxonasi" data-ru="👶 Детская больница">👶 Bolalar shifoxonasi</button>
+        <button class="branch-btn active" onclick="selectBranch(6, this)" data-branch="6" data-uz="🌿 Yangiariq" data-ru="🌿 Янгиарик">🌿 Yangiariq</button>
+        <button class="branch-btn" onclick="selectBranch(4, this)" data-branch="4" data-uz="🏥 Sevinch Klinika" data-ru="🏥 Севинч Клиника">🏥 Sevinch Klinika</button>
+        <button class="branch-btn" onclick="selectBranch(3, this)" data-branch="3" data-uz="👶 Bolalar shifoxonasi" data-ru="👶 Детская больница">👶 Bolalar shifoxonasi</button>
       </div>
 
       <div id="api-warning" class="api-warning">
@@ -375,6 +375,75 @@
     const API_URL = 'https://rink-atrocious-lushly.ngrok-free.dev';
     let currentLang = 'uz';
     let currentBranch = 6;
+
+    // ========== ГЕОЛОКАЦИЯ ==========
+    const BRANCH_COORDS = {
+        6: { lat: 41.372416, lng: 60.602814, name_uz: '🌿 Yangiariq',        name_ru: '🌿 Янгиарик' },
+        4: { lat: 41.549473, lng: 60.635948, name_uz: '🏥 Sevinch Klinika',  name_ru: '🏥 Севинч Клиника' },
+        3: { lat: 41.565283, lng: 60.627438, name_uz: '👶 Bolalar shifoxonasi', name_ru: '👶 Детская больница' },
+    };
+
+    function getDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLng/2) * Math.sin(dLng/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function findNearestBranch(userLat, userLng) {
+        let nearest = null;
+        let minDist = Infinity;
+        for (const [id, branch] of Object.entries(BRANCH_COORDS)) {
+            const dist = getDistance(userLat, userLng, branch.lat, branch.lng);
+            if (dist < minDist) {
+                minDist = dist;
+                nearest = { id: parseInt(id), dist: dist.toFixed(1), ...branch };
+            }
+        }
+        return nearest;
+    }
+
+    function detectLocation() {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(function(pos) {
+            const userLat = pos.coords.latitude;
+            const userLng = pos.coords.longitude;
+            const nearest = findNearestBranch(userLat, userLng);
+            if (nearest) {
+                // Автоматически выбираем ближайший филиал
+                currentBranch = nearest.id;
+                document.querySelectorAll('.branch-btn').forEach(b => b.classList.remove('active'));
+                const btn = document.querySelector('.branch-btn[data-branch="' + nearest.id + '"]');
+                if (btn) btn.classList.add('active');
+                // Показываем уведомление
+                const branchName = currentLang === 'ru' ? nearest.name_ru : nearest.name_uz;
+                const distText = currentLang === 'ru'
+                    ? '📍 Ближайший филиал: ' + branchName + ' (' + nearest.dist + ' км)'
+                    : '📍 Eng yaqin filial: ' + branchName + ' (' + nearest.dist + ' km)';
+                showGeoNotice(distText);
+            }
+        }, function() {
+            // Геолокация отклонена — оставляем Янгиарик по умолчанию
+        });
+    }
+
+    function showGeoNotice(text) {
+        let notice = document.getElementById('geo-notice');
+        if (!notice) {
+            notice = document.createElement('div');
+            notice.id = 'geo-notice';
+            notice.style.cssText = 'background:#e8f8ed;border:1px solid #16a34a;border-radius:8px;padding:10px 16px;font-size:0.85rem;color:#15803d;margin-bottom:16px;text-align:center;animation:fadeUp 0.4s ease both';
+            const catalog = document.getElementById('catalog') || document.querySelector('.catalog .container');
+            if (catalog) {
+                const branchFilter = document.querySelector('.branch-filter');
+                if (branchFilter) branchFilter.parentNode.insertBefore(notice, branchFilter);
+            }
+        }
+        notice.textContent = text;
+    }
     let allMedicines = [];
 
     function setLang(lang){
@@ -444,6 +513,9 @@
     }
 
     document.getElementById('search-input').addEventListener('input', filterMedicines);
+
+    // Запускаем геолокацию при загрузке страницы
+    detectLocation();
   </script>
 
 </body>
