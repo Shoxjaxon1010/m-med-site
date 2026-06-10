@@ -415,19 +415,25 @@
             if (nearest) {
                 // Автоматически выбираем ближайший филиал
                 currentBranch = nearest.id;
+                window._nearestBranch = nearest;
                 document.querySelectorAll('.branch-btn').forEach(b => b.classList.remove('active'));
                 const btn = document.querySelector('.branch-btn[data-branch="' + nearest.id + '"]');
                 if (btn) btn.classList.add('active');
-                // Показываем уведомление
-                const branchName = currentLang === 'ru' ? nearest.name_ru : nearest.name_uz;
-                const distText = currentLang === 'ru'
-                    ? '📍 Ближайший филиал: ' + branchName + ' (' + nearest.dist + ' км)'
-                    : '📍 Eng yaqin filial: ' + branchName + ' (' + nearest.dist + ' km)';
-                showGeoNotice(distText);
+                updateGeoNotice();
             }
         }, function() {
             // Геолокация отклонена — оставляем Янгиарик по умолчанию
         });
+    }
+
+    function updateGeoNotice() {
+        if (!window._nearestBranch) return;
+        const nearest = window._nearestBranch;
+        const branchName = currentLang === 'ru' ? nearest.name_ru : nearest.name_uz;
+        const distText = currentLang === 'ru'
+            ? '📍 Ближайший филиал: ' + branchName + ' (' + nearest.dist + ' км)'
+            : '📍 Eng yaqin filial: ' + branchName + ' (' + nearest.dist + ' km)';
+        showGeoNotice(distText);
     }
 
     function showGeoNotice(text) {
@@ -458,6 +464,7 @@
         btn.classList.toggle('active', btn.textContent===lang.toUpperCase());
       });
       if(allMedicines.length) renderMedicines(allMedicines);
+      updateGeoNotice();
     }
 
     function selectBranch(branchId, btn){
