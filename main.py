@@ -212,15 +212,26 @@ def kpi_login(data: LoginData):
     return {"success": False, "message": "Неверный логин или пароль"}
 
 @app.get("/kpi/stats")
-def get_kpi_stats(period: str = "month", branch: Optional[int] = None):
+def get_kpi_stats(period: str = "month", branch: Optional[int] = None, month: Optional[str] = None):
     """Получить статистику продаж по фармацевтам"""
     try:
         today = date.today()
-        if period == "day":
+        from datetime import timedelta
+        date_to = None
+        if month:
+            # Конкретный месяц: например "2026-05"
+            year, mon = int(month.split('-')[0]), int(month.split('-')[1])
+            date_from = month + "-01"
+            if mon == 12:
+                date_to = str(year+1) + "-01-01"
+            else:
+                date_to = month[:5] + str(mon+1).zfill(2) + "-01"
+        elif period == "day":
             date_from = today.strftime("%Y-%m-%d")
         elif period == "week":
-            from datetime import timedelta
             date_from = (today - timedelta(days=7)).strftime("%Y-%m-%d")
+        elif period == "all":
+            date_from = "2020-01-01"
         else:
             date_from = today.strftime("%Y-%m-01")
 
@@ -231,16 +242,32 @@ def get_kpi_stats(period: str = "month", branch: Optional[int] = None):
 
         query = """
             SELECT 
-                U.NAME as FARMATSEVT,
+                CASE 
+                    WHEN U.NAME = 'Sevinch' AND U.ID = 300000064 THEN 'Sevinch'
+                    WHEN U.NAME = 'Sevinch' AND U.ID = 300000065 THEN 'Sevinch 2'
+                    ELSE U.NAME 
+                END as FARMATSEVT,
                 I.OTDEL,
                 COUNT(I.ID) as SOTISHLAR,
                 SUM(I.SUMMA) as JAMI_SUMMA
             FROM INVOICE I
             LEFT JOIN USERS U ON U.ID = I.USERS
-            WHERE I.DATA >= '""" + date_from + """'
+            WHERE CAST(I.DATAENTER as DATE) >= '""" + date_from + """'
+              AND ('""" + (date_to or '2099-01-01') + """' = '2099-01-01' OR CAST(I.DATAENTER as DATE) < '""" + (date_to or '2099-01-01') + """'
               AND I.SUMMA > 0
+              AND U.NAME NOT LIKE N'КАССА%'
+              AND U.NAME NOT LIKE 'KASSA%'
+              AND U.NAME != N'АДМИНИСТРАТОР'
+              AND U.NAME != 'MANAGER'
+              AND U.ID NOT IN (300000055, 200000049, 300000052, 300000049, 150000050)
               """ + branch_filter + """
-            GROUP BY U.NAME, I.OTDEL
+            GROUP BY 
+                CASE 
+                    WHEN U.NAME = 'Sevinch' AND U.ID = 300000064 THEN 'Sevinch'
+                    WHEN U.NAME = 'Sevinch' AND U.ID = 300000065 THEN 'Sevinch 2'
+                    ELSE U.NAME 
+                END,
+                I.OTDEL
             ORDER BY JAMI_SUMMA DESC
         """
         cursor.execute(query)
