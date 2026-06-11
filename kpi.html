@@ -226,7 +226,23 @@
       <div class="filters">
         <button class="filter-btn active" onclick="setPeriod('day',this)">Bugun</button>
         <button class="filter-btn" onclick="setPeriod('week',this)">Hafta</button>
-        <button class="filter-btn" onclick="setPeriod('month',this)">Oy</button>
+        <select id="month-select-staff" onchange="setMonthStaff(this)" style="padding:8px 14px;border-radius:8px;border:1.5px solid #E8EAED;background:white;font-size:0.85rem;font-family:'Inter',sans-serif;cursor:pointer;color:#4A5568;outline:none">
+          <option value="">Oy tanlang...</option>
+          <option value="2026-06">Iyun 2026</option>
+          <option value="2026-05">May 2026</option>
+          <option value="2026-04">Aprel 2026</option>
+          <option value="2026-03">Mart 2026</option>
+          <option value="2026-02">Fevral 2026</option>
+          <option value="2026-01">Yanvar 2026</option>
+          <option value="2025-12">Dekabr 2025</option>
+          <option value="2025-11">Noyabr 2025</option>
+          <option value="2025-10">Oktyabr 2025</option>
+          <option value="2025-09">Sentyabr 2025</option>
+          <option value="2025-08">Avgust 2025</option>
+          <option value="2025-07">Iyul 2025</option>
+          <option value="2025-06">Iyun 2025</option>
+        </select>
+        <button class="filter-btn" onclick="setPeriod('all',this)">Hammasi</button>
       </div>
 
       <div class="section-title">📊 Reyting (o'z filialim)</div>
@@ -305,7 +321,10 @@
   function setPeriod(p, btn) {
     currentPeriod = p;
     currentMonth = null;
-    document.getElementById('month-select').value = '';
+    const adminSel = document.getElementById('month-select');
+    if (adminSel) adminSel.value = '';
+    const staffSel = document.getElementById('month-select-staff');
+    if (staffSel) staffSel.value = '';
     document.querySelectorAll('.filter-btn').forEach(b => {
       if(['Bugun','Hafta','Hammasi'].includes(b.textContent)) b.classList.remove('active');
     });
@@ -444,6 +463,16 @@
         '</tr>';
       }).join('');
     } catch(e) { console.error(e); }
+  }
+
+  function setMonthStaff(select) {
+    currentMonth = select.value;
+    if (!currentMonth) return;
+    currentPeriod = 'month';
+    document.querySelectorAll('#staff-view .filter-btn').forEach(b => {
+      if(['Bugun','Hafta','Hammasi'].includes(b.textContent)) b.classList.remove('active');
+    });
+    loadStaffStats();
   }
 
   function fmtSum(n) {
