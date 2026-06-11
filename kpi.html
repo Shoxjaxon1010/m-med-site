@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M-MED KPI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--red:#D42B2B;--red-light:#FEF2F2;--bg:#F7F8FA;--white:#fff;--border:#E8EAED;--text:#0F1923;--text-mid:#4A5568;--text-soft:#8896A6;--green:#16A34A;--green-bg:#F0FDF4;--gold:#F59E0B;--gold-bg:#FFFBEB}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    
+    /* LOGIN */
+    .login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#8B0000,#D42B2B)}
+    .login-card{background:white;border-radius:20px;padding:40px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+    .login-logo{text-align:center;margin-bottom:28px}
+    .login-logo-icon{width:56px;height:56px;background:var(--red);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px}
+    .login-logo-icon svg{width:32px;height:32px}
+    .login-title{font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text)}
+    .login-sub{font-size:0.85rem;color:var(--text-soft);margin-top:4px}
+    .form-group{margin-bottom:16px}
+    .form-label{font-size:0.82rem;font-weight:600;color:var(--text-mid);margin-bottom:6px;display:block}
+    .form-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.95rem;font-family:'Inter',sans-serif;outline:none;transition:border 0.2s}
+    .form-input:focus{border-color:var(--red)}
+    .login-btn{width:100%;padding:13px;background:var(--red);color:white;border:none;border-radius:10px;font-size:1rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background 0.2s;margin-top:8px}
+    .login-btn:hover{background:#A81E1E}
+    .login-error{background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;padding:10px 14px;font-size:0.85rem;color:#DC2626;margin-top:12px;display:none}
+
+    /* MAIN APP */
+    .app{display:none}
+    .navbar{background:white;border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .navbar-logo{display:flex;align-items:center;gap:10px}
+    .navbar-logo-icon{width:32px;height:32px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .navbar-logo-icon svg{width:18px;height:18px}
+    .navbar-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem}
+    .navbar-user{display:flex;align-items:center;gap:12px}
+    .user-badge{background:var(--red-light);color:var(--red);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600}
+    .logout-btn{padding:6px 14px;border:1.5px solid var(--border);border-radius:8px;background:white;font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s}
+    .logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+    .main{max-width:1100px;margin:0 auto;padding:32px 24px}
+
+    /* FILTERS */
+    .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+    .filter-btn{padding:8px 18px;border-radius:8px;border:1.5px solid var(--border);background:white;color:var(--text-mid);font-weight:500;font-size:0.85rem;cursor:pointer;transition:all 0.15s;font-family:'Inter',sans-serif}
+    .filter-btn.active{background:var(--red);color:white;border-color:var(--red)}
+
+    /* STATS CARDS */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:28px}
+    .stat-card{background:white;border:1px solid var(--border);border-radius:14px;padding:20px}
+    .stat-label{font-size:0.78rem;color:var(--text-soft);font-weight:500;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em}
+    .stat-value{font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text)}
+    .stat-value.red{color:var(--red)}
+    .stat-value.green{color:var(--green)}
+
+    /* TABLE */
+    .section-title{font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:16px;color:var(--text)}
+    .table-wrap{background:white;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:28px}
+    .kpi-table{width:100%;border-collapse:collapse}
+    .kpi-table thead th{background:#F8F9FB;padding:12px 16px;text-align:left;font-size:0.75rem;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border)}
+    .kpi-table tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s}
+    .kpi-table tbody tr:last-child{border-bottom:none}
+    .kpi-table tbody tr:hover{background:#FDF5F5}
+    .kpi-table td{padding:13px 16px;font-size:0.88rem;vertical-align:middle}
+    .rank-badge{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem}
+    .rank-1{background:#FEF9C3;color:#854D0E}
+    .rank-2{background:#F1F5F9;color:#475569}
+    .rank-3{background:#FEF2F2;color:#7F1D1D}
+    .rank-n{background:#F7F8FA;color:var(--text-soft)}
+    .summa-cell{font-weight:700;color:var(--red)}
+    .salary-cell{font-weight:700;color:var(--green)}
+    .branch-tag{display:inline-block;padding:2px 8px;border-radius:4px;background:var(--red-light);color:var(--red);font-size:0.72rem;font-weight:600}
+
+    /* SETTINGS */
+    .settings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+    .settings-card{background:white;border:1px solid var(--border);border-radius:14px;padding:20px}
+    .settings-name{font-weight:700;font-size:0.95rem;margin-bottom:4px}
+    .settings-branch{font-size:0.78rem;color:var(--text-soft);margin-bottom:16px}
+    .settings-row{display:flex;gap:10px;align-items:center}
+    .settings-input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:'Inter',sans-serif;outline:none}
+    .settings-input:focus{border-color:var(--red)}
+    .settings-save{padding:8px 16px;background:var(--red);color:white;border:none;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+    .settings-save:hover{background:#A81E1E}
+    .settings-label{font-size:0.75rem;color:var(--text-soft);margin-bottom:4px}
+
+    /* MY STATS */
+    .my-stats{background:linear-gradient(135deg,#8B0000,#D42B2B);border-radius:16px;padding:28px;color:white;margin-bottom:24px}
+    .my-name{font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:4px}
+    .my-branch{font-size:0.85rem;opacity:0.75;margin-bottom:20px}
+    .my-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .my-stat{background:rgba(255,255,255,0.1);border-radius:10px;padding:14px}
+    .my-stat-label{font-size:0.72rem;opacity:0.7;margin-bottom:4px;text-transform:uppercase}
+    .my-stat-value{font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:700}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fadeUp 0.4s ease both}
+
+    @media(max-width:640px){
+      .main{padding:16px}
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
+      .my-grid{grid-template-columns:repeat(2,1fr)}
+      .kpi-table thead th:nth-child(3){display:none}
+      .kpi-table td:nth-child(3){display:none}
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-page" id="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="10" y="3" width="4" height="18" rx="2" fill="white"/>
+          <rect x="3" y="10" width="18" height="4" rx="2" fill="white"/>
+        </svg>
+      </div>
+      <div class="login-title">M-MED KPI</div>
+      <div class="login-sub">Tizimga kirish</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Логин</label>
+      <input class="form-input" type="text" id="login-input" placeholder="Логин"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Пароль</label>
+      <input class="form-input" type="password" id="pass-input" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Kirish →</button>
+    <div class="login-error" id="login-error">Неверный логин или пароль</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <nav class="navbar">
+    <div class="navbar-logo">
+      <div class="navbar-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="10" y="3" width="4" height="18" rx="2" fill="white"/>
+          <rect x="3" y="10" width="18" height="4" rx="2" fill="white"/>
+        </svg>
+      </div>
+      <span class="navbar-title">M-MED KPI</span>
+    </div>
+    <div class="navbar-user">
+      <span class="user-badge" id="user-name-badge">-</span>
+      <button class="logout-btn" onclick="doLogout()">Chiqish</button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <!-- ADMIN VIEW -->
+    <div id="admin-view" style="display:none">
+      <div class="filters">
+        <button class="filter-btn active" onclick="setPeriod('day',this)">Bugun</button>
+        <button class="filter-btn" onclick="setPeriod('week',this)">Hafta</button>
+        <button class="filter-btn active2" onclick="setPeriod('month',this)">Oy</button>
+        <button class="filter-btn" onclick="setPeriod('all',this)">Hammasi</button>
+        <button class="filter-btn" onclick="setBranch(null,this)">Barcha filiallar</button>
+        <button class="filter-btn" onclick="setBranch(3,this)">👶 Bolalar</button>
+        <button class="filter-btn" onclick="setBranch(4,this)">🏥 Sevinch</button>
+        <button class="filter-btn" onclick="setBranch(6,this)">🌿 Yangiariq</button>
+      </div>
+
+      <div class="stats-grid" id="admin-stats"></div>
+
+      <div class="section-title">🏆 Reyting</div>
+      <div class="table-wrap">
+        <table class="kpi-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Farmatsevt</th>
+              <th>Filial</th>
+              <th>Sotishlar</th>
+              <th>Summa</th>
+              <th>Maosh</th>
+            </tr>
+          </thead>
+          <tbody id="kpi-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="section-title">⚙️ Maosh sozlamalari</div>
+      <div class="settings-grid" id="settings-grid"></div>
+    </div>
+
+    <!-- PHARMACIST VIEW -->
+    <div id="staff-view" style="display:none">
+      <div class="my-stats" id="my-stats-card">
+        <div class="my-name" id="my-name">-</div>
+        <div class="my-branch" id="my-branch">-</div>
+        <div class="my-grid">
+          <div class="my-stat">
+            <div class="my-stat-label">Sotishlar</div>
+            <div class="my-stat-value" id="my-count">0</div>
+          </div>
+          <div class="my-stat">
+            <div class="my-stat-label">Summa</div>
+            <div class="my-stat-value" id="my-summa">0</div>
+          </div>
+          <div class="my-stat">
+            <div class="my-stat-label">Maosh</div>
+            <div class="my-stat-value" id="my-salary">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filters">
+        <button class="filter-btn active" onclick="setPeriod('day',this)">Bugun</button>
+        <button class="filter-btn" onclick="setPeriod('week',this)">Hafta</button>
+        <button class="filter-btn" onclick="setPeriod('month',this)">Oy</button>
+      </div>
+
+      <div class="section-title">📊 Reyting (o'z filialim)</div>
+      <div class="table-wrap">
+        <table class="kpi-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Farmatsevt</th>
+              <th>Sotishlar</th>
+              <th>Summa</th>
+            </tr>
+          </thead>
+          <tbody id="staff-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_URL = 'https://rink-atrocious-lushly.ngrok-free.dev';
+  let currentRole = null;
+  let currentUser = null;
+  let currentPeriod = 'month';
+  let currentBranch = null;
+
+  async function doLogin() {
+    const login = document.getElementById('login-input').value.trim();
+    const pass = document.getElementById('pass-input').value.trim();
+    if (!login || !pass) return;
+
+    try {
+      const res = await fetch(API_URL + '/kpi/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true'},
+        body: JSON.stringify({login, password: pass})
+      });
+      const data = await res.json();
+      if (data.success) {
+        currentRole = data.role;
+        currentUser = data;
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        document.getElementById('user-name-badge').textContent = data.name;
+        if (data.role === 'admin') {
+          document.getElementById('admin-view').style.display = 'block';
+          loadAdminStats();
+        } else {
+          document.getElementById('staff-view').style.display = 'block';
+          currentBranch = data.branch;
+          loadStaffStats();
+        }
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    } catch(e) {
+      document.getElementById('login-error').textContent = 'Сервер недоступен';
+      document.getElementById('login-error').style.display = 'block';
+    }
+  }
+
+  function doLogout() {
+    currentRole = null;
+    currentUser = null;
+    document.getElementById('login-page').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('admin-view').style.display = 'none';
+    document.getElementById('staff-view').style.display = 'none';
+    document.getElementById('login-input').value = '';
+    document.getElementById('pass-input').value = '';
+    document.getElementById('login-error').style.display = 'none';
+  }
+
+  function setPeriod(p, btn) {
+    currentPeriod = p;
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      if(['Bugun','Hafta','Oy','Hammasi'].includes(b.textContent)) b.classList.remove('active');
+    });
+    btn.classList.add('active');
+    if (currentRole === 'admin') loadAdminStats();
+    else loadStaffStats();
+  }
+
+  function setBranch(b, btn) {
+    currentBranch = b;
+    document.querySelectorAll('.filter-btn').forEach(x => {
+      if(['Barcha filiallar','👶 Bolalar','🏥 Sevinch','🌿 Yangiariq'].includes(x.textContent)) x.classList.remove('active');
+    });
+    btn.classList.add('active');
+    loadAdminStats();
+  }
+
+  async function loadAdminStats() {
+    try {
+      let url = API_URL + '/kpi/stats?period=' + currentPeriod;
+      if (currentBranch) url += '&branch=' + currentBranch;
+      const res = await fetch(url, {headers: {'ngrok-skip-browser-warning': 'true'}});
+      const data = await res.json();
+      if (data.error) { console.error(data.error); return; }
+      renderAdminStats(data);
+      renderKpiTable(data);
+      loadSettings(data);
+    } catch(e) { console.error(e); }
+  }
+
+  function renderAdminStats(data) {
+    const totalSumma = data.reduce((s, r) => s + r.summa, 0);
+    const totalCount = data.reduce((s, r) => s + r.count, 0);
+    const totalSalary = data.reduce((s, r) => s + r.salary, 0);
+    const best = data[0];
+    document.getElementById('admin-stats').innerHTML =
+      statCard('Jami sotish', totalCount + ' ta') +
+      statCard('Jami summa', fmtSum(totalSumma), 'red') +
+      statCard('Jami maosh', fmtSum(totalSalary), 'green') +
+      (best ? statCard('🏆 Lider', best.name) : '');
+  }
+
+  function statCard(label, value, color='') {
+    return '<div class="stat-card fade-up"><div class="stat-label">' + label + '</div><div class="stat-value ' + color + '">' + value + '</div></div>';
+  }
+
+  function renderKpiTable(data) {
+    const tbody = document.getElementById('kpi-table-body');
+    if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#888">Ma\'lumot yo\'q</td></tr>'; return; }
+    tbody.innerHTML = data.map(row => {
+      const rankClass = row.rank === 1 ? 'rank-1' : row.rank === 2 ? 'rank-2' : row.rank === 3 ? 'rank-3' : 'rank-n';
+      return '<tr>' +
+        '<td><span class="rank-badge ' + rankClass + '">' + (row.rank === 1 ? '🥇' : row.rank === 2 ? '🥈' : row.rank === 3 ? '🥉' : row.rank) + '</span></td>' +
+        '<td style="font-weight:600">' + row.name + '</td>' +
+        '<td><span class="branch-tag">' + (row.branch_ru || '') + '</span></td>' +
+        '<td>' + row.count + ' ta</td>' +
+        '<td class="summa-cell">' + fmtSum(row.summa) + '</td>' +
+        '<td class="salary-cell">' + fmtSum(row.salary) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  async function loadSettings(data) {
+    const settingsRes = await fetch(API_URL + '/kpi/settings', {headers: {'ngrok-skip-browser-warning': 'true'}});
+    const settings = await settingsRes.json();
+    const grid = document.getElementById('settings-grid');
+    const BRANCH_NAMES = {3: '👶 Болalar shifoxonasi', 4: '🏥 Sevinch Klinika', 6: '🌿 Yangiariq'};
+    const names = [...new Set(data.map(r => r.name))];
+    grid.innerHTML = names.map(name => {
+      const row = data.find(r => r.name === name);
+      const s = settings[name] || {fix: 0, percent: 0};
+      const branch = row ? BRANCH_NAMES[row.branch_id] || '' : '';
+      return '<div class="settings-card fade-up">' +
+        '<div class="settings-name">' + name + '</div>' +
+        '<div class="settings-branch">' + branch + '</div>' +
+        '<div class="settings-label">Fiksli maosh (so\'m)</div>' +
+        '<div class="settings-row" style="margin-bottom:10px">' +
+          '<input class="settings-input" type="number" id="fix-' + name + '" value="' + s.fix + '" placeholder="0"/>' +
+        '</div>' +
+        '<div class="settings-label">Foiz (%)</div>' +
+        '<div class="settings-row">' +
+          '<input class="settings-input" type="number" id="pct-' + name + '" value="' + s.percent + '" step="0.1" placeholder="0"/>' +
+          '<button class="settings-save" onclick="saveSettings(\'' + name + '\')">Saqlash</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  async function saveSettings(name) {
+    const fix = parseFloat(document.getElementById('fix-' + name).value) || 0;
+    const percent = parseFloat(document.getElementById('pct-' + name).value) || 0;
+    await fetch(API_URL + '/kpi/settings', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true'},
+      body: JSON.stringify({name, fix, percent})
+    });
+    loadAdminStats();
+  }
+
+  async function loadStaffStats() {
+    try {
+      let url = API_URL + '/kpi/stats?period=' + currentPeriod;
+      if (currentBranch) url += '&branch=' + currentBranch;
+      const res = await fetch(url, {headers: {'ngrok-skip-browser-warning': 'true'}});
+      const data = await res.json();
+      const me = data.find(r => r.name === currentUser.name || r.name === currentUser.name.replace(' 2',''));
+      if (me) {
+        document.getElementById('my-name').textContent = currentUser.name;
+        const BRANCH_NAMES = {3: 'Bolalar shifoxonasi', 4: 'Sevinch Klinika', 6: 'Yangiariq'};
+        document.getElementById('my-branch').textContent = BRANCH_NAMES[me.branch_id] || '';
+        document.getElementById('my-count').textContent = me.count + ' ta';
+        document.getElementById('my-summa').textContent = fmtSum(me.summa);
+        document.getElementById('my-salary').textContent = fmtSum(me.salary);
+      }
+      const tbody = document.getElementById('staff-table-body');
+      tbody.innerHTML = data.map(row => {
+        const isMe = row.name === currentUser.name;
+        return '<tr style="' + (isMe ? 'background:#FEF2F2;font-weight:700' : '') + '">' +
+          '<td><span class="rank-badge ' + (row.rank<=3?'rank-'+row.rank:'rank-n') + '">' + (row.rank===1?'🥇':row.rank===2?'🥈':row.rank===3?'🥉':row.rank) + '</span></td>' +
+          '<td>' + row.name + (isMe ? ' ← Sen' : '') + '</td>' +
+          '<td>' + row.count + ' ta</td>' +
+          '<td class="summa-cell">' + fmtSum(row.summa) + '</td>' +
+        '</tr>';
+      }).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  function fmtSum(n) {
+    return Number(n).toLocaleString('ru-RU') + " so'm";
+  }
+</script>
+</body>
+</html>
