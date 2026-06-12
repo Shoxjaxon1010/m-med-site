@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>M-MED KPI</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -182,7 +183,10 @@
 
       <div class="stats-grid" id="admin-stats"></div>
 
-      <div class="section-title">🏆 Reyting</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="section-title" style="margin-bottom:0">🏆 Reyting</div>
+        <button onclick="exportExcel()" style="padding:8px 18px;background:#16A34A;color:white;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;display:flex;align-items:center;gap:6px">📥 Excel</button>
+      </div>
       <div class="table-wrap">
         <table class="kpi-table">
           <thead>
@@ -456,6 +460,33 @@
       body: JSON.stringify({name, fix, percent, plan})
     });
     loadAdminStats();
+  }
+
+  function exportExcel() {
+    const rows = [['#', 'Farmatsevt', 'Filial', 'Sotishlar', 'Summa', 'Plan %', 'Maosh']];
+    const tbody = document.getElementById('kpi-table-body');
+    if (!tbody) return;
+    const trs = tbody.querySelectorAll('tr');
+    trs.forEach((tr, i) => {
+      const tds = tr.querySelectorAll('td');
+      if (tds.length < 5) return;
+      const rank = i + 1;
+      const name = tds[1].textContent.trim();
+      const filial = tds[2].textContent.trim();
+      const sotish = tds[3].textContent.trim();
+      const summa = tds[4].textContent.trim();
+      const plan = tds[5] ? tds[5].textContent.trim() : '-';
+      const maosh = tds[6] ? tds[6].textContent.trim() : '-';
+      rows.push([rank, name, filial, sotish, summa, plan, maosh]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{wch:4},{wch:18},{wch:20},{wch:12},{wch:22},{wch:10},{wch:22}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'KPI');
+
+    const today = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, 'M-MED_KPI_' + today + '.xlsx');
   }
 
   function planBar(pct, plan) {
