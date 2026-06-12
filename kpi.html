@@ -192,6 +192,7 @@
               <th>Filial</th>
               <th>Sotishlar</th>
               <th>Summa</th>
+              <th>Plan</th>
               <th>Maosh</th>
             </tr>
           </thead>
@@ -229,6 +230,10 @@
           <div class="my-stat">
             <div class="my-stat-label">Maosh</div>
             <div class="my-stat-value" id="my-salary">0</div>
+          </div>
+          <div class="my-stat" id="my-plan-stat" style="display:none">
+            <div class="my-stat-label">Reja bajarish</div>
+            <div class="my-stat-value" id="my-plan-pct">0%</div>
           </div>
         </div>
       </div>
@@ -405,6 +410,7 @@
         '<td><span class="branch-tag">' + (row.branch_ru || '') + '</span></td>' +
         '<td>' + row.count + ' ta</td>' +
         '<td class="summa-cell">' + fmtSum(row.summa) + '</td>' +
+        '<td>' + planBar(row.plan_pct, row.plan) + '</td>' +
         '<td class="salary-cell">' + fmtSum(row.salary) + '</td>' +
       '</tr>';
     }).join('');
@@ -428,8 +434,12 @@
           '<input class="settings-input" type="number" id="fix-' + name + '" value="' + s.fix + '" placeholder="0"/>' +
         '</div>' +
         '<div class="settings-label">Foiz (%)</div>' +
-        '<div class="settings-row">' +
+        '<div class="settings-row" style="margin-bottom:10px">' +
           '<input class="settings-input" type="number" id="pct-' + name + '" value="' + s.percent + '" step="0.1" placeholder="0"/>' +
+        '</div>' +
+        '<div class="settings-label">Oylik reja (so'm)</div>' +
+        '<div class="settings-row">' +
+          '<input class="settings-input" type="number" id="plan-' + name + '" value="' + (s.plan||0) + '" placeholder="0"/>' +
           '<button class="settings-save" onclick="saveSettings(\'' + name + '\')">Saqlash</button>' +
         '</div>' +
       '</div>';
@@ -439,12 +449,20 @@
   async function saveSettings(name) {
     const fix = parseFloat(document.getElementById('fix-' + name).value) || 0;
     const percent = parseFloat(document.getElementById('pct-' + name).value) || 0;
+    const plan = parseFloat(document.getElementById('plan-' + name).value) || 0;
     await fetch(API_URL + '/kpi/settings', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true'},
-      body: JSON.stringify({name, fix, percent})
+      body: JSON.stringify({name, fix, percent, plan})
     });
     loadAdminStats();
+  }
+
+  function planBar(pct, plan) {
+    if (!plan || plan === 0) return '<span style="color:#8896A6;font-size:0.78rem">-</span>';
+    var color = pct >= 100 ? '#16A34A' : pct >= 70 ? '#F59E0B' : '#D42B2B';
+    var width = Math.min(pct, 100);
+    return '<div style="min-width:100px"><div style="font-size:0.78rem;font-weight:700;color:' + color + ';margin-bottom:3px">' + pct + '%</div><div style="height:6px;background:#F1F3F5;border-radius:4px;overflow:hidden"><div style="height:100%;width:' + width + '%;background:' + color + ';border-radius:4px"></div></div></div>';
   }
 
   async function loadStaffStats() {
@@ -462,6 +480,10 @@
         document.getElementById('my-count').textContent = me.count + ' ta';
         document.getElementById('my-summa').textContent = fmtSum(me.summa);
         document.getElementById('my-salary').textContent = fmtSum(me.salary);
+        if (me.plan && me.plan > 0) {
+          document.getElementById('my-plan-stat').style.display = 'block';
+          document.getElementById('my-plan-pct').textContent = me.plan_pct + '%';
+        }
       }
       const tbody = document.getElementById('staff-table-body');
       tbody.innerHTML = data.map(row => {

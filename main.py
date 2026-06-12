@@ -68,18 +68,18 @@ KPI_PASSWORD_STAFF = "12345678"
 
 # Настройки KPI — загружаются из файла при старте
 DEFAULT_SETTINGS = {
-    "Дилафруз": {"fix": 0, "percent": 0},
-    "Лайло":    {"fix": 0, "percent": 0},
-    "Зебо":     {"fix": 0, "percent": 0},
-    "Жавохир":  {"fix": 0, "percent": 0},
-    "Dilnura":  {"fix": 0, "percent": 0},
-    "Gulyor":   {"fix": 0, "percent": 0},
-    "Guljahon": {"fix": 0, "percent": 0},
-    "Guli":     {"fix": 0, "percent": 0},
-    "Oydinoy":  {"fix": 0, "percent": 0},
-    "Sevinch":  {"fix": 0, "percent": 0},
-    "Sevinch 2":{"fix": 0, "percent": 0},
-    "Dilfuza":  {"fix": 0, "percent": 0},
+    "Дилафруз": {"fix": 0, "percent": 0, "plan": 0},
+    "Лайло":    {"fix": 0, "percent": 0, "plan": 0},
+    "Зебо":     {"fix": 0, "percent": 0, "plan": 0},
+    "Жавохир":  {"fix": 0, "percent": 0, "plan": 0},
+    "Dilnura":  {"fix": 0, "percent": 0, "plan": 0},
+    "Gulyor":   {"fix": 0, "percent": 0, "plan": 0},
+    "Guljahon": {"fix": 0, "percent": 0, "plan": 0},
+    "Guli":     {"fix": 0, "percent": 0, "plan": 0},
+    "Oydinoy":  {"fix": 0, "percent": 0, "plan": 0},
+    "Sevinch":  {"fix": 0, "percent": 0, "plan": 0},
+    "Sevinch 2":{"fix": 0, "percent": 0, "plan": 0},
+    "Dilfuza":  {"fix": 0, "percent": 0, "plan": 0},
 }
 # Загружаем сохранённые настройки, дополняем дефолтными
 _saved = load_settings_from_file()
@@ -224,6 +224,7 @@ class KpiSettings(BaseModel):
     name: str
     fix: float
     percent: float
+    plan: float = 0
 
 @app.post("/kpi/login")
 def kpi_login(data: LoginData):
@@ -307,6 +308,8 @@ def get_kpi_stats(period: str = "month", branch: Optional[int] = None, month: Op
             branch_info = BRANCHES.get(otdel, {})
             settings = KPI_SETTINGS.get(name, {"fix": 0, "percent": 0})
             salary = settings["fix"] + (summa * settings["percent"] / 100)
+            plan = settings.get("plan", 0)
+            plan_pct = round((summa / plan * 100), 1) if plan > 0 else 0
             result.append({
                 "rank": i + 1,
                 "name": name,
@@ -317,6 +320,8 @@ def get_kpi_stats(period: str = "month", branch: Optional[int] = None, month: Op
                 "summa": summa,
                 "fix": settings["fix"],
                 "percent": settings["percent"],
+                "plan": plan,
+                "plan_pct": plan_pct,
                 "salary": salary,
             })
         return result
@@ -326,7 +331,7 @@ def get_kpi_stats(period: str = "month", branch: Optional[int] = None, month: Op
 @app.post("/kpi/settings")
 def update_kpi_settings(data: KpiSettings):
     """Обновить настройки зарплаты фармацевта"""
-    KPI_SETTINGS[data.name] = {"fix": data.fix, "percent": data.percent}
+    KPI_SETTINGS[data.name] = {"fix": data.fix, "percent": data.percent, "plan": data.plan}
     save_settings_to_file(KPI_SETTINGS)
     return {"success": True}
 
