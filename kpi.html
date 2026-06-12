@@ -515,6 +515,37 @@
       });
 
       html += '</div>';
+
+      // Фармацевты — тоже горизонтальными барами
+      const maxPharm = Math.max(...data.pharmacists.map(p => Math.max(p.cur_summa, p.prev_summa)));
+      html += '<div style="background:white;border:1px solid #E8EAED;border-radius:14px;padding:24px;margin-top:16px">';
+      html += '<div style="font-weight:700;font-size:0.95rem;margin-bottom:20px">👤 Farmatsevtlar</div>';
+
+      data.pharmacists.forEach(p => {
+        if (p.cur_summa === 0 && p.prev_summa === 0) return;
+        const arrow = p.diff > 0 ? '↑' : p.diff < 0 ? '↓' : '→';
+        const color = p.diff > 0 ? '#16A34A' : p.diff < 0 ? '#D42B2B' : '#8896A6';
+        const curW = maxPharm > 0 ? Math.round(p.cur_summa / maxPharm * 100) : 0;
+        const prevW = maxPharm > 0 ? Math.round(p.prev_summa / maxPharm * 100) : 0;
+
+        html += '<div style="margin-bottom:16px">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+        html += '<span style="font-weight:600;font-size:0.88rem">' + p.name + ' <span style="font-size:0.75rem;color:#8896A6;font-weight:400">' + p.branch_ru + '</span></span>';
+        html += '<span style="font-weight:700;font-size:0.85rem;color:' + color + '">' + arrow + ' ' + Math.abs(p.pct) + '%</span>';
+        html += '</div>';
+        html += '<div style="height:22px;background:#F7F8FA;border-radius:5px;overflow:hidden;margin-bottom:3px">';
+        html += '<div style="height:100%;width:' + curW + '%;background:#D42B2B;border-radius:5px;display:flex;align-items:center;padding-left:8px">';
+        html += '<span style="color:white;font-size:0.72rem;font-weight:600;white-space:nowrap">' + fmtSum(p.cur_summa) + '</span>';
+        html += '</div></div>';
+        html += '<div style="height:16px;background:#F7F8FA;border-radius:5px;overflow:hidden">';
+        html += '<div style="height:100%;width:' + prevW + '%;background:#E8EAED;border-radius:5px;display:flex;align-items:center;padding-left:8px">';
+        html += '<span style="color:#8896A6;font-size:0.68rem;font-weight:600;white-space:nowrap">' + fmtSum(p.prev_summa) + '</span>';
+        html += '</div></div>';
+        html += '</div>';
+      });
+
+      html += '</div>';
+
       document.getElementById('compare-section').innerHTML = html;
     } catch(e) { console.error(e); }
   }
