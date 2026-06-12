@@ -25,6 +25,26 @@ def save_settings_to_file(settings):
     except Exception as e:
         print(f"Ошибка сохранения настроек: {e}")
 
+HISTORY_FILE = "C:\\mmed-api\\kpi_history.json"
+
+def load_history():
+    try:
+        if os.path.exists(HISTORY_FILE):
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except:
+        pass
+    return {}
+
+def save_history(history):
+    try:
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(history, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Ошибка сохранения истории: {e}")
+
+KPI_HISTORY = load_history()
+
 app = FastAPI(title="M-MED API")
 
 app.add_middleware(
@@ -335,6 +355,43 @@ def update_kpi_settings(data: KpiSettings):
     save_settings_to_file(KPI_SETTINGS)
     return {"success": True}
 
+class SalaryRecord(BaseModel):
+    month: str  # "2026-06"
+    name: str
+    summa: float
+    fix: float
+    percent: float
+    salary: float
+    plan: float = 0
+    plan_pct: float = 0
+
+@app.post("/kpi/history/save")
+def save_salary_history(data: SalaryRecord):
+    """Сохранить зарплату за месяц"""
+    if data.month not in KPI_HISTORY:
+        KPI_HISTORY[data.month] = {}
+    KPI_HISTORY[data.month][data.name] = {
+        "summa": data.summa,
+        "fix": data.fix,
+        "percent": data.percent,
+        "salary": data.salary,
+        "plan": data.plan,
+        "plan_pct": data.plan_pct,
+    }
+    save_history(KPI_HISTORY)
+    return {"success": True}
+
+@app.get("/kpi/history")
+def get_salary_history(name: str = None):
+    """Получить историю зарплат"""
+    if name:
+        result = {}
+        for month, records in KPI_HISTORY.items():
+            if name in records:
+                result[month] = records[name]
+        return result
+    return KPI_HISTORY
+
 @app.get("/kpi/settings")
 def get_all_kpi_settings():
     return KPI_SETTINGS
@@ -467,7 +524,7 @@ def get_kpi_compare():
                     END,
                     I.OTDEL
             """)
-            pharmacists = {row[0]: {"summa": float(row[1] or 0), "branch_id": row[2]} for row in cursor.fetchall()}
+            pharmacists = {row[0]: {"summa": float(row[2] or 0), "branch_id": row[1]} for row in cursor.fetchall()}
             return branches, pharmacists
 
         cur_branches, cur_pharm = get_stats(cur_from)

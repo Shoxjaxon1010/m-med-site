@@ -218,6 +218,12 @@
 
       <div class="section-title">⚙️ Maosh sozlamalari</div>
       <div class="settings-grid" id="settings-grid"></div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;margin-top:12px">
+        <div class="section-title" style="margin-bottom:0">📋 Maosh tarixi</div>
+        <button onclick="closeMonth()" style="padding:8px 18px;background:#F59E0B;color:white;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">💾 Oyni yopish</button>
+      </div>
+      <div id="history-section"></div>
     </div>
 
     <!-- PHARMACIST VIEW -->
@@ -388,6 +394,7 @@
       loadSettings(data);
       populateChartSelect(data);
       loadCompare();
+      loadHistory();
     } catch(e) { console.error(e); }
   }
 
@@ -547,6 +554,66 @@
       html += '</div>';
 
       document.getElementById('compare-section').innerHTML = html;
+    } catch(e) { console.error(e); }
+  }
+
+  async function closeMonth() {
+    if (!confirm('Joriy oyni yopib, maoshlarni saqlamoqchimisiz?')) return;
+    try {
+      const url = API_URL + '/kpi/stats?period=month';
+      const res = await fetch(url, {headers: {'ngrok-skip-browser-warning': 'true'}});
+      const data = await res.json();
+      const today = new Date();
+      const month = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0');
+
+      for (const row of data) {
+        await fetch(API_URL + '/kpi/history/save', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true'},
+          body: JSON.stringify({
+            month, name: row.name, summa: row.summa,
+            fix: row.fix, percent: row.percent,
+            salary: row.salary, plan: row.plan, plan_pct: row.plan_pct
+          })
+        });
+      }
+      alert('Maoshlar saqlandi!');
+      loadHistory();
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadHistory() {
+    try {
+      const res = await fetch(API_URL + '/kpi/history', {headers: {'ngrok-skip-browser-warning': 'true'}});
+      const data = await res.json();
+      if (!Object.keys(data).length) {
+        document.getElementById('history-section').innerHTML = '<div style="text-align:center;color:#8896A6;padding:20px;font-size:0.88rem">Hali tarix yoq</div>';
+        return;
+      }
+
+      const MONTHS = {'01':'Yanvar','02':'Fevral','03':'Mart','04':'Aprel','05':'May','06':'Iyun','07':'Iyul','08':'Avgust','09':'Sentyabr','10':'Oktyabr','11':'Noyabr','12':'Dekabr'};
+
+      let html = '<div class="table-wrap"><table class="kpi-table"><thead><tr><th>Oy</th><th>Farmatsevt</th><th>Sotish summasi</th><th>Fix</th><th>Foiz</th><th>Maosh</th><th>Reja %</th></tr></thead><tbody>';
+
+      const months = Object.keys(data).sort().reverse();
+      months.forEach(month => {
+        const label = MONTHS[month.slice(5)] + ' ' + month.slice(0,4);
+        const records = data[month];
+        Object.entries(records).forEach(([name, r]) => {
+          html += '<tr>';
+          html += '<td style="font-weight:600;color:#D42B2B">' + label + '</td>';
+          html += '<td style="font-weight:600">' + name + '</td>';
+          html += '<td class="summa-cell">' + fmtSum(r.summa) + '</td>';
+          html += '<td>' + fmtSum(r.fix) + '</td>';
+          html += '<td>' + r.percent + '%</td>';
+          html += '<td class="salary-cell">' + fmtSum(r.salary) + '</td>';
+          html += '<td>' + (r.plan_pct || 0) + '%</td>';
+          html += '</tr>';
+        });
+      });
+
+      html += '</tbody></table></div>';
+      document.getElementById('history-section').innerHTML = html;
     } catch(e) { console.error(e); }
   }
 
