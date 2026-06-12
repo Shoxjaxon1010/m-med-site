@@ -22,6 +22,15 @@
   <!-- Canonical -->
   <link rel="canonical" href="https://m-med-site.netlify.app"/>
 
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="M-MED"/>
+  <link rel="apple-touch-icon" href="/icon-192.png"/>
+  <meta name="theme-color" content="#D42B2B"/>
+
   <!-- Schema.org структурированные данные -->
   <script type="application/ld+json">
   {
@@ -590,5 +599,14 @@
     detectLocation();
   </script>
 
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(reg) { console.log('SW registered'); })
+          .catch(function(err) { console.log('SW error:', err); });
+      });
+    }
+  </script>
 </body>
 </html>
