@@ -404,3 +404,122 @@ def get_kpi_chart(month: str = None, branch: Optional[int] = None):
         return result
     except Exception as e:
         return {"error": str(e)}
+
+@app.get("/kpi/compare")
+def get_kpi_compare():
+    """Сравнение текущего и прошлого месяца по филиалам и фармацевтам"""
+    try:
+        today = date.today()
+        # Текущий месяц
+        cur_from = today.strftime("%Y-%m-01")
+        # Прошлый месяц
+        if today.month == 1:
+            prev_from = str(today.year-1) + "-12-01"
+            prev_to = today.strftime("%Y-%m-01")
+        else:
+            prev_from = today.strftime("%Y-") + str(today.month-1).zfill(2) + "-01"
+            prev_to = today.strftime("%Y-%m-01")
+
+        conn = get_db_connection(DB_GLOBAL)
+        cursor = conn.cursor()
+
+        def get_stats(date_from, date_to=None):
+            date_filter = "CAST(I.DATAENTER as DATE) >= '" + date_from + "'"
+            if date_to:
+                date_filter += " AND CAST(I.DATAENTER as DATE) < '" + date_to + "'"
+
+            # По филиалам
+            cursor.execute("""
+                SELECT I.OTDEL, SUM(I.SUMMA) as SUMMA, COUNT(I.ID) as CHEK
+                FROM INVOICE I
+                WHERE """ + date_filter + """
+                  AND I.SUMMA > 0
+                  AND I.OTDEL IN (3, 4, 6)
+                GROUP BY I.OTDEL
+            """)
+            branches = {row[0]: {"summa": float(row[1] or 0), "count": row[2]} for row in cursor.fetchall()}
+
+            # По фармацевтам
+            cursor.execute("""
+                SELECT 
+                    CASE 
+                        WHEN U.NAME = 'Sevinch' AND U.ID = 300000064 THEN 'Sevinch'
+                        WHEN U.NAME = 'Sevinch' AND U.ID = 300000065 THEN 'Sevinch 2'
+                        ELSE U.NAME 
+                    END as FARMATSEVT,
+                    I.OTDEL,
+                    SUM(I.SUMMA) as SUMMA
+                FROM INVOICE I
+                LEFT JOIN USERS U ON U.ID = I.USERS
+                WHERE """ + date_filter + """
+                  AND I.SUMMA > 0
+                  AND U.NAME NOT LIKE N'КАССА%'
+                  AND U.NAME NOT LIKE 'KASSA%'
+                  AND U.NAME != N'АДМИНИСТРАТОР'
+                  AND U.NAME != 'MANAGER'
+                  AND U.ID NOT IN (300000055, 200000049, 300000052, 300000049, 150000050)
+                  AND I.OTDEL IN (3, 4, 6)
+                GROUP BY 
+                    CASE 
+                        WHEN U.NAME = 'Sevinch' AND U.ID = 300000064 THEN 'Sevinch'
+                        WHEN U.NAME = 'Sevinch' AND U.ID = 300000065 THEN 'Sevinch 2'
+                        ELSE U.NAME 
+                    END,
+                    I.OTDEL
+            """)
+            pharmacists = {row[0]: {"summa": float(row[1] or 0), "branch_id": row[2]} for row in cursor.fetchall()}
+            return branches, pharmacists
+
+        cur_branches, cur_pharm = get_stats(cur_from)
+        prev_branches, prev_pharm = get_stats(prev_from, prev_to)
+        conn.close()
+
+        # Формируем результат по филиалам
+        branch_compare = []
+        for otdel, info in BRANCHES.items():
+            cur = cur_branches.get(otdel, {"summa": 0, "count": 0})
+            prev = prev_branches.get(otdel, {"summa": 0, "count": 0})
+            diff = cur["summa"] - prev["summa"]
+            pct = round((diff / prev["summa"] * 100), 1) if prev["summa"] > 0 else 0
+            branch_compare.append({
+                "branch_id": otdel,
+                "branch_ru": info["name_ru"],
+                "branch_uz": info["name_uz"],
+                "cur_summa": cur["summa"],
+                "prev_summa": prev["summa"],
+                "diff": diff,
+                "pct": pct,
+            })
+
+        # Формируем результат по фармацевтам
+        all_names = set(list(cur_pharm.keys()) + list(prev_pharm.keys()))
+        pharm_compare = []
+        for name in all_names:
+            cur = cur_pharm.get(name, {"summa": 0, "branch_id": 0})
+            prev = prev_pharm.get(name, {"summa": 0, "branch_id": 0})
+            diff = cur["summa"] - prev["summa"]
+            pct = round((diff / prev["summa"] * 100), 1) if prev["summa"] > 0 else 0
+            branch_id = cur.get("branch_id") or prev.get("branch_id")
+            branch_info = BRANCHES.get(branch_id, {})
+            pharm_compare.append({
+                "name": name,
+                "branch_id": branch_id,
+                "branch_ru": branch_info.get("name_ru", ""),
+                "cur_summa": cur["summa"],
+                "prev_summa": prev["summa"],
+                "diff": diff,
+                "pct": pct,
+            })
+        pharm_compare.sort(key=lambda x: x["cur_summa"], reverse=True)
+
+        cur_month = today.strftime("%Y-%m")
+        prev_month = (today.replace(day=1) - __import__('datetime').timedelta(days=1)).strftime("%Y-%m")
+
+        return {
+            "cur_month": cur_month,
+            "prev_month": prev_month,
+            "branches": branch_compare,
+            "pharmacists": pharm_compare
+        }
+    except Exception as e:
+        return {"error": str(e)}

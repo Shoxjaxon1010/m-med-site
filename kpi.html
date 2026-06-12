@@ -213,6 +213,9 @@
         <canvas id="sales-chart" height="100"></canvas>
       </div>
 
+      <div class="section-title">📊 Taqqoslash (bu oy vs o'tgan oy)</div>
+      <div id="compare-section" style="margin-bottom:28px"></div>
+
       <div class="section-title">⚙️ Maosh sozlamalari</div>
       <div class="settings-grid" id="settings-grid"></div>
     </div>
@@ -384,6 +387,7 @@
       renderKpiTable(data);
       loadSettings(data);
       populateChartSelect(data);
+      loadCompare();
     } catch(e) { console.error(e); }
   }
 
@@ -460,6 +464,56 @@
       body: JSON.stringify({name, fix, percent, plan})
     });
     loadAdminStats();
+  }
+
+  async function loadCompare() {
+    try {
+      const res = await fetch(API_URL + '/kpi/compare', {headers: {'ngrok-skip-browser-warning': 'true'}});
+      const data = await res.json();
+      if (data.error) return;
+
+      const MONTHS = {'01':'Yanvar','02':'Fevral','03':'Mart','04':'Aprel','05':'May','06':'Iyun','07':'Iyul','08':'Avgust','09':'Sentyabr','10':'Oktyabr','11':'Noyabr','12':'Dekabr'};
+      const curLabel = MONTHS[data.cur_month.slice(5)] + ' ' + data.cur_month.slice(0,4);
+      const prevLabel = MONTHS[data.prev_month.slice(5)] + ' ' + data.prev_month.slice(0,4);
+
+      let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">';
+
+      // Филиалы
+      html += '<div style="background:white;border:1px solid #E8EAED;border-radius:14px;padding:20px">';
+      html += '<div style="font-weight:700;font-size:0.95rem;margin-bottom:16px">🏢 Filiallar</div>';
+      data.branches.forEach(b => {
+        const arrow = b.diff > 0 ? '↑' : b.diff < 0 ? '↓' : '→';
+        const color = b.diff > 0 ? '#16A34A' : b.diff < 0 ? '#D42B2B' : '#8896A6';
+        html += '<div style="margin-bottom:14px">';
+        html += '<div style="font-weight:600;font-size:0.88rem;margin-bottom:6px">' + b.branch_ru + '</div>';
+        html += '<div style="display:flex;justify-content:space-between;font-size:0.82rem;color:#4A5568;margin-bottom:4px">';
+        html += '<span>' + curLabel + ': ' + fmtSum(b.cur_summa) + '</span>';
+        html += '<span style="color:' + color + ';font-weight:700">' + arrow + ' ' + Math.abs(b.pct) + '%</span>';
+        html += '</div>';
+        html += '<div style="font-size:0.78rem;color:#8896A6">' + prevLabel + ': ' + fmtSum(b.prev_summa) + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+
+      // Фармацевты
+      html += '<div style="background:white;border:1px solid #E8EAED;border-radius:14px;padding:20px">';
+      html += '<div style="font-weight:700;font-size:0.95rem;margin-bottom:16px">👤 Farmatsevtlar</div>';
+      data.pharmacists.forEach(p => {
+        const arrow = p.diff > 0 ? '↑' : p.diff < 0 ? '↓' : '→';
+        const color = p.diff > 0 ? '#16A34A' : p.diff < 0 ? '#D42B2B' : '#8896A6';
+        html += '<div style="margin-bottom:12px">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">';
+        html += '<span style="font-weight:600;font-size:0.85rem">' + p.name + '</span>';
+        html += '<span style="color:' + color + ';font-weight:700;font-size:0.82rem">' + arrow + ' ' + Math.abs(p.pct) + '%</span>';
+        html += '</div>';
+        html += '<div style="font-size:0.78rem;color:#4A5568">' + fmtSum(p.cur_summa) + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+
+      html += '</div>';
+      document.getElementById('compare-section').innerHTML = html;
+    } catch(e) { console.error(e); }
   }
 
   function exportExcel() {
