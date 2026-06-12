@@ -3,7 +3,27 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from pydantic import BaseModel
 import pyodbc
+import json
+import os
 from datetime import datetime, date
+
+SETTINGS_FILE = "C:\\mmed-api\\kpi_settings.json"
+
+def load_settings_from_file():
+    try:
+        if os.path.exists(SETTINGS_FILE):
+            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except:
+        pass
+    return {}
+
+def save_settings_to_file(settings):
+    try:
+        with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+            json.dump(settings, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Ошибка сохранения настроек: {e}")
 
 app = FastAPI(title="M-MED API")
 
@@ -46,8 +66,8 @@ KPI_USERS = {
 KPI_PASSWORD_ADMIN = "123"
 KPI_PASSWORD_STAFF = "12345678"
 
-# Настройки KPI (хранятся в памяти, можно сохранять в базу)
-KPI_SETTINGS = {
+# Настройки KPI — загружаются из файла при старте
+DEFAULT_SETTINGS = {
     "Дилафруз": {"fix": 0, "percent": 0},
     "Лайло":    {"fix": 0, "percent": 0},
     "Зебо":     {"fix": 0, "percent": 0},
@@ -61,6 +81,10 @@ KPI_SETTINGS = {
     "Sevinch 2":{"fix": 0, "percent": 0},
     "Dilfuza":  {"fix": 0, "percent": 0},
 }
+# Загружаем сохранённые настройки, дополняем дефолтными
+_saved = load_settings_from_file()
+KPI_SETTINGS = {**DEFAULT_SETTINGS, **_saved}
+print(f"KPI настройки загружены: {list(KPI_SETTINGS.keys())}")
 
 def get_db_connection(db_name=None):
     name = db_name or DB_NAME
@@ -253,7 +277,7 @@ def get_kpi_stats(period: str = "month", branch: Optional[int] = None, month: Op
             FROM INVOICE I
             LEFT JOIN USERS U ON U.ID = I.USERS
             WHERE CAST(I.DATAENTER as DATE) >= '""" + date_from + """'
-              AND ('""" + (date_to or '2099-01-01') + """' = '2099-01-01' OR CAST(I.DATAENTER as DATE) < '""" + (date_to or '2099-01-01') + """'
+              AND ('""" + (date_to or '2099-01-01') + """' = '2099-01-01' OR CAST(I.DATAENTER as DATE) < '""" + (date_to or '2099-01-01') + """')
               AND I.SUMMA > 0
               AND U.NAME NOT LIKE N'КАССА%'
               AND U.NAME NOT LIKE 'KASSA%'
@@ -303,8 +327,75 @@ def get_kpi_stats(period: str = "month", branch: Optional[int] = None, month: Op
 def update_kpi_settings(data: KpiSettings):
     """Обновить настройки зарплаты фармацевта"""
     KPI_SETTINGS[data.name] = {"fix": data.fix, "percent": data.percent}
+    save_settings_to_file(KPI_SETTINGS)
     return {"success": True}
 
 @app.get("/kpi/settings")
 def get_all_kpi_settings():
     return KPI_SETTINGS
+
+@app.get("/kpi/chart")
+def get_kpi_chart(month: str = None, branch: Optional[int] = None):
+    """Продажи по дням месяца для графика"""
+    try:
+        today = date.today()
+        if month:
+            date_from = month + "-01"
+            year, mon = int(month.split('-')[0]), int(month.split('-')[1])
+            if mon == 12:
+                date_to = str(year+1) + "-01-01"
+            else:
+                date_to = month[:5] + str(mon+1).zfill(2) + "-01"
+        else:
+            date_from = today.strftime("%Y-%m-01")
+            date_to = today.strftime("%Y-%m-") + "31"
+
+        branch_filter = "AND I.OTDEL = " + str(branch) if branch else "AND I.OTDEL IN (3, 4, 6)"
+
+        conn = get_db_connection(DB_GLOBAL)
+        cursor = conn.cursor()
+        query = """
+            SELECT 
+                CASE 
+                    WHEN U.NAME = 'Sevinch' AND U.ID = 300000064 THEN 'Sevinch'
+                    WHEN U.NAME = 'Sevinch' AND U.ID = 300000065 THEN 'Sevinch 2'
+                    ELSE U.NAME 
+                END as FARMATSEVT,
+                CAST(I.DATAENTER as DATE) as KUN,
+                SUM(I.SUMMA) as SUMMA
+            FROM INVOICE I
+            LEFT JOIN USERS U ON U.ID = I.USERS
+            WHERE CAST(I.DATAENTER as DATE) >= '""" + date_from + """'
+              AND CAST(I.DATAENTER as DATE) < '""" + date_to + """'
+              AND I.SUMMA > 0
+              AND U.NAME NOT LIKE N'КАССА%'
+              AND U.NAME NOT LIKE 'KASSA%'
+              AND U.NAME != N'АДМИНИСТРАТОР'
+              AND U.NAME != 'MANAGER'
+              AND U.ID NOT IN (300000055, 200000049, 300000052, 300000049, 150000050)
+              """ + branch_filter + """
+            GROUP BY 
+                CASE 
+                    WHEN U.NAME = 'Sevinch' AND U.ID = 300000064 THEN 'Sevinch'
+                    WHEN U.NAME = 'Sevinch' AND U.ID = 300000065 THEN 'Sevinch 2'
+                    ELSE U.NAME 
+                END,
+                CAST(I.DATAENTER as DATE)
+            ORDER BY KUN, FARMATSEVT
+        """
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        conn.close()
+
+        result = {}
+        for row in rows:
+            name = row[0] or "Неизвестно"
+            day = str(row[1])
+            summa = float(row[2]) if row[2] else 0
+            if name not in result:
+                result[name] = []
+            result[name].append({"day": day, "summa": summa})
+
+        return result
+    except Exception as e:
+        return {"error": str(e)}

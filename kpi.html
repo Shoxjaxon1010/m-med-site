@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>M-MED KPI</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -198,6 +199,15 @@
         </table>
       </div>
 
+      <div class="section-title">📈 Sotish grafigi</div>
+      <div style="background:white;border:1px solid #E8EAED;border-radius:14px;padding:20px;margin-bottom:28px">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+          <span style="font-size:0.82rem;color:#8896A6;font-weight:500">Farmatsevt:</span>
+          <select id="chart-person" onchange="loadChart()" style="padding:6px 12px;border-radius:8px;border:1.5px solid #E8EAED;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none"></select>
+        </div>
+        <canvas id="sales-chart" height="100"></canvas>
+      </div>
+
       <div class="section-title">⚙️ Maosh sozlamalari</div>
       <div class="settings-grid" id="settings-grid"></div>
     </div>
@@ -364,6 +374,7 @@
       renderAdminStats(data);
       renderKpiTable(data);
       loadSettings(data);
+      populateChartSelect(data);
     } catch(e) { console.error(e); }
   }
 
@@ -477,6 +488,79 @@
 
   function fmtSum(n) {
     return Number(n).toLocaleString('ru-RU') + " so'm";
+  }
+
+  let chartInstance = null;
+
+  async function loadChart() {
+    const person = document.getElementById('chart-person').value;
+    if (!person) return;
+
+    const monthSel = document.getElementById('month-select');
+    const month = monthSel ? monthSel.value : '';
+
+    let url = API_URL + '/kpi/chart';
+    if (month) url += '?month=' + month;
+    if (currentBranch) url += (month ? '&' : '?') + 'branch=' + currentBranch;
+
+    try {
+      const res = await fetch(url, {headers: {'ngrok-skip-browser-warning': 'true'}});
+      const data = await res.json();
+      if (data.error) return;
+
+      const personData = data[person] || [];
+      const labels = personData.map(d => d.day.slice(8)); // день месяца
+      const values = personData.map(d => d.summa);
+
+      const ctx = document.getElementById('sales-chart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: person,
+            data: values,
+            borderColor: '#D42B2B',
+            backgroundColor: 'rgba(212,43,43,0.08)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#D42B2B',
+            pointRadius: 4,
+            tension: 0.3,
+            fill: true,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => fmtSum(ctx.raw)
+              }
+            }
+          },
+          scales: {
+            y: {
+              ticks: {
+                callback: v => (v/1000000).toFixed(1) + ' mln'
+              },
+              grid: { color: '#F1F3F5' }
+            },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    } catch(e) { console.error(e); }
+  }
+
+  function populateChartSelect(data) {
+    const sel = document.getElementById('chart-person');
+    if (!sel) return;
+    const names = [...new Set(data.map(r => r.name))];
+    sel.innerHTML = names.map(n => '<option value="' + n + '">' + n + '</option>').join('');
+    loadChart();
   }
 </script>
 </body>
