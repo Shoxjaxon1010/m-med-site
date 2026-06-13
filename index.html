@@ -94,12 +94,35 @@
       --text-soft:#8896A6;
       --green:#16A34A;
       --green-bg:#F0FDF4;
+      --nav-bg:rgba(255,255,255,0.92);
+      --shadow:rgba(0,0,0,0.08);
+    }
+    html[data-theme="dark"]{
+      --red:#FF4D5E;
+      --red-dark:#E03548;
+      --red-light:#3A1A1F;
+      --white:#1A1D24;
+      --bg:#0F1117;
+      --surface:#1A1D24;
+      --border:#2A2E38;
+      --text:#F0F2F5;
+      --text-mid:#B0B8C4;
+      --text-soft:#7A8494;
+      --green:#34D399;
+      --green-bg:#0F2A1F;
+      --nav-bg:rgba(26,29,36,0.92);
+      --shadow:rgba(0,0,0,0.4);
     }
     html{scroll-behavior:smooth}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.5}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.5;transition:background 0.4s ease,color 0.4s ease}
+
+    /* ── THEME TOGGLE ── */
+    .theme-toggle{width:44px;height:26px;border-radius:100px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;position:relative;transition:all 0.3s;flex-shrink:0;padding:0}
+    .theme-toggle-knob{position:absolute;top:1.5px;left:1.5px;width:20px;height:20px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:11px;transition:transform 0.3s ease}
+    html[data-theme="dark"] .theme-toggle-knob{transform:translateX(18px)}
 
     /* ── NAV ── */
-    .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
+    .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;transition:background 0.4s ease,border-color 0.4s ease}
     .nav-logo{display:flex;align-items:center;gap:10px}
     .nav-logo-icon{width:34px;height:34px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center}
     .nav-logo-icon svg{width:20px;height:20px}
@@ -261,6 +284,26 @@
       .desk-call{display:none}
       .mob-call{display:inline-flex !important}
     }
+    /* ── PROMO SLIDER ── */
+    .promo-slider{max-width:960px;margin:24px auto 0;padding:0 24px}
+    .promo-track{position:relative;border-radius:18px;overflow:hidden;height:150px;box-shadow:0 8px 28px var(--shadow)}
+    .promo-slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:0 36px;opacity:0;transition:opacity 0.7s ease;color:white}
+    .promo-slide.active{opacity:1}
+    .promo-slide h3{font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:8px}
+    .promo-slide p{font-size:0.95rem;opacity:0.92;max-width:70%}
+    .promo-dots{display:flex;gap:8px;justify-content:center;margin-top:14px}
+    .promo-dot{width:8px;height:8px;border-radius:50%;background:var(--border);cursor:pointer;transition:all 0.3s;border:none;padding:0}
+    .promo-dot.active{background:var(--red);width:24px;border-radius:4px}
+    @media(max-width:640px){
+      .promo-track{height:130px}
+      .promo-slide{padding:0 24px}
+      .promo-slide h3{font-size:1.2rem}
+      .promo-slide p{font-size:0.85rem;max-width:90%}
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s ease,transform 0.7s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
   </style>
 </head>
 <body>
@@ -280,6 +323,9 @@
       <div class="nav-phone">
         <a href="tel:+998995680405">📞 +998 99 568-04-05</a>
       </div>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="theme" title="Kunduzgi / Tungi rejim">
+        <span class="theme-toggle-knob" id="theme-knob">☀️</span>
+      </button>
       <div class="lang-bar">
         <button class="lang-btn active" onclick="setLang('uz')">UZ</button>
         <button class="lang-btn" onclick="setLang('ru')">RU</button>
@@ -307,6 +353,25 @@
     <a href="tel:+998995680405" class="hero-cta">📞 +998 99 568-04-05</a>
     <div class="hero-bottom"></div>
   </section>
+
+  <!-- PROMO SLIDER -->
+  <div class="promo-slider">
+    <div class="promo-track" id="promo-track">
+      <div class="promo-slide active" style="background:linear-gradient(120deg,#D42B2B,#8B0000)">
+        <h3 data-uz="🎉 Doimiy mijozlarga chegirma" data-ru="🎉 Скидка постоянным клиентам">🎉 Doimiy mijozlarga chegirma</h3>
+        <p data-uz="Tez orada — to'plash tizimi va shaxsiy chegirmalar" data-ru="Скоро — накопительная система и персональные скидки">Tez orada — to'plash tizimi va shaxsiy chegirmalar</p>
+      </div>
+      <div class="promo-slide" style="background:linear-gradient(120deg,#16A34A,#0F7A3A)">
+        <h3 data-uz="🚚 3 ta filial — sizga yaqin" data-ru="🚚 3 филиала — рядом с вами">🚚 3 ta filial — sizga yaqin</h3>
+        <p data-uz="Yangiariq filiali 24/7 ishlaydi" data-ru="Филиал Янгиарик работает 24/7">Yangiariq filiali 24/7 ishlaydi</p>
+      </div>
+      <div class="promo-slide" style="background:linear-gradient(120deg,#2563EB,#1E3A8A)">
+        <h3 data-uz="🔍 Dorini onlayn qidiring" data-ru="🔍 Ищите лекарства онлайн">🔍 Dorini onlayn qidiring</h3>
+        <p data-uz="Narxni va mavjudligini saytdan biling" data-ru="Узнайте цену и наличие на сайте">Narxni va mavjudligini saytdan biling</p>
+      </div>
+    </div>
+    <div class="promo-dots" id="promo-dots"></div>
+  </div>
 
   <!-- CATALOG -->
   <section class="catalog" id="catalog">
@@ -362,7 +427,7 @@
   </section>
 
   <!-- BRANCHES -->
-  <section class="branches-section" id="branches">
+  <section class="branches-section reveal" id="branches">
     <div class="container">
       <div class="section-title-wrap">
         <div class="section-icon">📍</div>
@@ -401,7 +466,7 @@
   </section>
 
   <!-- CONTACTS -->
-  <section class="contacts-section" id="contacts">
+  <section class="contacts-section reveal" id="contacts">
     <div class="container">
       <div class="section-title-wrap">
         <div class="section-icon">💬</div>
@@ -600,6 +665,67 @@
   </script>
 
   <script>
+    // ===== TUNGI REJIM (DARK MODE) =====
+    function applyTheme(theme){
+      document.documentElement.setAttribute('data-theme', theme);
+      var knob = document.getElementById('theme-knob');
+      if(knob) knob.textContent = theme === 'dark' ? '🌙' : '☀️';
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if(meta) meta.setAttribute('content', theme === 'dark' ? '#1A1D24' : '#D42B2B');
+    }
+    function toggleTheme(){
+      var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      var next = cur === 'dark' ? 'light' : 'dark';
+      try { localStorage.setItem('mmed-theme', next); } catch(e){}
+      applyTheme(next);
+    }
+    (function(){
+      var saved = 'light';
+      try { saved = localStorage.getItem('mmed-theme') || 'light'; } catch(e){}
+      applyTheme(saved);
+    })();
+
+    // ===== AKSIYALAR SLAYDER (PROMO SLIDER) =====
+    (function(){
+      var slides = document.querySelectorAll('.promo-slide');
+      var dotsWrap = document.getElementById('promo-dots');
+      if(!slides.length || !dotsWrap) return;
+      var idx = 0;
+      slides.forEach(function(s, i){
+        var dot = document.createElement('button');
+        dot.className = 'promo-dot' + (i === 0 ? ' active' : '');
+        dot.onclick = function(){ goTo(i); };
+        dotsWrap.appendChild(dot);
+      });
+      var dots = dotsWrap.querySelectorAll('.promo-dot');
+      function goTo(n){
+        slides[idx].classList.remove('active');
+        dots[idx].classList.remove('active');
+        idx = n;
+        slides[idx].classList.add('active');
+        dots[idx].classList.add('active');
+      }
+      setInterval(function(){ goTo((idx + 1) % slides.length); }, 4500);
+    })();
+
+    // ===== SCROLL ANIMATSIYA (REVEAL) =====
+    (function(){
+      var els = document.querySelectorAll('.reveal');
+      if(!('IntersectionObserver' in window)){
+        els.forEach(function(el){ el.classList.add('visible'); });
+        return;
+      }
+      var obs = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            entry.target.classList.add('visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      els.forEach(function(el){ obs.observe(el); });
+    })();
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js')
