@@ -284,22 +284,13 @@
       .desk-call{display:none}
       .mob-call{display:inline-flex !important}
     }
-    /* ── PROMO SLIDER ── */
-    .promo-slider{max-width:960px;margin:24px auto 0;padding:0 24px}
-    .promo-track{position:relative;border-radius:18px;overflow:hidden;height:150px;box-shadow:0 8px 28px var(--shadow)}
-    .promo-slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:0 36px;opacity:0;transition:opacity 0.7s ease;color:white}
-    .promo-slide.active{opacity:1}
-    .promo-slide h3{font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:8px}
-    .promo-slide p{font-size:0.95rem;opacity:0.92;max-width:70%}
-    .promo-dots{display:flex;gap:8px;justify-content:center;margin-top:14px}
-    .promo-dot{width:8px;height:8px;border-radius:50%;background:var(--border);cursor:pointer;transition:all 0.3s;border:none;padding:0}
-    .promo-dot.active{background:var(--red);width:24px;border-radius:4px}
-    @media(max-width:640px){
-      .promo-track{height:130px}
-      .promo-slide{padding:0 24px}
-      .promo-slide h3{font-size:1.2rem}
-      .promo-slide p{font-size:0.85rem;max-width:90%}
-    }
+    /* ── FILIAL STATUS PILL (kartochka ichida) ── */
+    .branch-status{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:100px;font-size:0.72rem;font-weight:700;margin:2px 0 5px}
+    .branch-status.open{background:var(--green-bg);color:var(--green)}
+    .branch-status.closed{background:#F1F3F5;color:var(--text-soft)}
+    html[data-theme="dark"] .branch-status.closed{background:#2A2E38;color:var(--text-soft)}
+    .branch-status .status-dot-live{width:6px;height:6px;border-radius:50%;background:currentColor}
+    .branch-status.open .status-dot-live{animation:pulse-ring 2s infinite}
 
     /* ── SCROLL REVEAL ── */
     .reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s ease,transform 0.7s ease}
@@ -353,25 +344,6 @@
     <a href="tel:+998995680405" class="hero-cta">📞 +998 99 568-04-05</a>
     <div class="hero-bottom"></div>
   </section>
-
-  <!-- PROMO SLIDER -->
-  <div class="promo-slider">
-    <div class="promo-track" id="promo-track">
-      <div class="promo-slide active" style="background:linear-gradient(120deg,#D42B2B,#8B0000)">
-        <h3 data-uz="🎉 Doimiy mijozlarga chegirma" data-ru="🎉 Скидка постоянным клиентам">🎉 Doimiy mijozlarga chegirma</h3>
-        <p data-uz="Tez orada — to'plash tizimi va shaxsiy chegirmalar" data-ru="Скоро — накопительная система и персональные скидки">Tez orada — to'plash tizimi va shaxsiy chegirmalar</p>
-      </div>
-      <div class="promo-slide" style="background:linear-gradient(120deg,#16A34A,#0F7A3A)">
-        <h3 data-uz="🚚 3 ta filial — sizga yaqin" data-ru="🚚 3 филиала — рядом с вами">🚚 3 ta filial — sizga yaqin</h3>
-        <p data-uz="Yangiariq filiali 24/7 ishlaydi" data-ru="Филиал Янгиарик работает 24/7">Yangiariq filiali 24/7 ishlaydi</p>
-      </div>
-      <div class="promo-slide" style="background:linear-gradient(120deg,#2563EB,#1E3A8A)">
-        <h3 data-uz="🔍 Dorini onlayn qidiring" data-ru="🔍 Ищите лекарства онлайн">🔍 Dorini onlayn qidiring</h3>
-        <p data-uz="Narxni va mavjudligini saytdan biling" data-ru="Узнайте цену и наличие на сайте">Narxni va mavjudligini saytdan biling</p>
-      </div>
-    </div>
-    <div class="promo-dots" id="promo-dots"></div>
-  </div>
 
   <!-- CATALOG -->
   <section class="catalog" id="catalog">
@@ -437,26 +409,29 @@
         </div>
       </div>
       <div class="branches-grid">
-        <a class="branch-card" href="https://yandex.ru/navi?whatshere[zoom]=18&whatshere[point]=60.602814,41.372416" target="_blank">
+        <a class="branch-card" data-bid="6" href="https://yandex.ru/navi?whatshere[zoom]=18&whatshere[point]=60.602814,41.372416" target="_blank">
           <div class="branch-num">1</div>
           <div class="branch-info">
             <h3 data-uz="🌿 Yangiariq" data-ru="🌿 Янгиарик">🌿 Yangiariq</h3>
+            <span class="branch-status" data-bid="6"></span>
             <div class="branch-time" data-uz="⏰ 24/7 ishlaydi" data-ru="⏰ Работает 24/7">⏰ 24/7 ishlaydi</div>
             <div class="branch-loc" data-uz="📍 Xaritada ko'rish" data-ru="📍 Открыть на карте">📍 Xaritada ko'rish</div>
           </div>
         </a>
-        <a class="branch-card" href="https://yandex.ru/navi?whatshere[zoom]=18&whatshere[point]=60.635948,41.549473" target="_blank">
+        <a class="branch-card" data-bid="4" href="https://yandex.ru/navi?whatshere[zoom]=18&whatshere[point]=60.635948,41.549473" target="_blank">
           <div class="branch-num">2</div>
           <div class="branch-info">
             <h3 data-uz="🏥 Sevinch Klinika" data-ru="🏥 Клиника Севинч">🏥 Sevinch Klinika</h3>
+            <span class="branch-status" data-bid="4"></span>
             <div class="branch-time" data-uz="⏰ 09:00 – 00:00" data-ru="⏰ 09:00 – 00:00">⏰ 09:00 – 00:00</div>
             <div class="branch-loc" data-uz="📍 Xaritada ko'rish" data-ru="📍 Открыть на карте">📍 Xaritada ko'rish</div>
           </div>
         </a>
-        <a class="branch-card" href="https://yandex.ru/navi?whatshere[zoom]=18&whatshere[point]=60.627438,41.565283" target="_blank">
+        <a class="branch-card" data-bid="3" href="https://yandex.ru/navi?whatshere[zoom]=18&whatshere[point]=60.627438,41.565283" target="_blank">
           <div class="branch-num">3</div>
           <div class="branch-info">
             <h3 data-uz="👶 Bolalar shifoxonasi" data-ru="👶 Детская больница">👶 Bolalar shifoxonasi</h3>
+            <span class="branch-status" data-bid="3"></span>
             <div class="branch-time" data-uz="⏰ 09:00 – 00:00" data-ru="⏰ 09:00 – 00:00">⏰ 09:00 – 00:00</div>
             <div class="branch-loc" data-uz="📍 Xaritada ko'rish" data-ru="📍 Открыть на карте">📍 Xaritada ko'rish</div>
           </div>
@@ -604,6 +579,7 @@
       });
       if(allMedicines.length) renderMedicines(allMedicines);
       updateGeoNotice();
+      if(window._renderStatus) window._renderStatus();
     }
 
     function selectBranch(branchId, btn){
@@ -685,28 +661,33 @@
       applyTheme(saved);
     })();
 
-    // ===== AKSIYALAR SLAYDER (PROMO SLIDER) =====
-    (function(){
-      var slides = document.querySelectorAll('.promo-slide');
-      var dotsWrap = document.getElementById('promo-dots');
-      if(!slides.length || !dotsWrap) return;
-      var idx = 0;
-      slides.forEach(function(s, i){
-        var dot = document.createElement('button');
-        dot.className = 'promo-dot' + (i === 0 ? ' active' : '');
-        dot.onclick = function(){ goTo(i); };
-        dotsWrap.appendChild(dot);
+    // ===== FILIAL STATUS (OCHIQ / YOPIQ) =====
+    // Har bir filial: bid (filial ID), always (24/7 bo'lsa true), open/close soat
+    var STATUS_BRANCHES = {
+      6: { always: true,  open: 0, close: 24 },  // Yangiariq 24/7
+      4: { always: false, open: 9, close: 24 },  // Sevinch 09:00-00:00
+      3: { always: false, open: 9, close: 24 },  // Bolalar 09:00-00:00
+    };
+
+    function renderStatus(){
+      // Toshkent vaqti (UTC+5)
+      var now = new Date();
+      var hour = (now.getUTCHours() + 5) % 24;
+      document.querySelectorAll('.branch-status').forEach(function(el){
+        var bid = el.getAttribute('data-bid');
+        var b = STATUS_BRANCHES[bid];
+        if(!b) return;
+        var isOpen = b.always || (hour >= b.open && hour < b.close);
+        var pillText = isOpen
+          ? (currentLang === 'ru' ? 'Сейчас открыто' : 'Hozir ochiq')
+          : (currentLang === 'ru' ? 'Закрыто' : 'Yopiq');
+        el.className = 'branch-status ' + (isOpen ? 'open' : 'closed');
+        el.innerHTML = '<span class="status-dot-live"></span>' + pillText;
       });
-      var dots = dotsWrap.querySelectorAll('.promo-dot');
-      function goTo(n){
-        slides[idx].classList.remove('active');
-        dots[idx].classList.remove('active');
-        idx = n;
-        slides[idx].classList.add('active');
-        dots[idx].classList.add('active');
-      }
-      setInterval(function(){ goTo((idx + 1) % slides.length); }, 4500);
-    })();
+    }
+    renderStatus();
+    setInterval(renderStatus, 60000);
+    window._renderStatus = renderStatus;
 
     // ===== SCROLL ANIMATSIYA (REVEAL) =====
     (function(){
