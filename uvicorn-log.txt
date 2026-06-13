@@ -1,0 +1,45 @@
+KPI настройки загружены: ['Дилафруз', 'Лайло', 'Зебо', 'Жавохир', 'Dilnura', 'Gulyor', 'Guljahon', 'Guli', 'Oydinoy', 'Sevinch', 'Sevinch 2', 'Dilfuza']
+INFO:     127.0.0.1:10762 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:10762 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+KPI настройки загружены: ['Дилафруз', 'Лайло', 'Зебо', 'Жавохир', 'Dilnura', 'Gulyor', 'Guljahon', 'Guli', 'Oydinoy', 'Sevinch', 'Sevinch 2', 'Dilfuza']
+INFO:     127.0.0.1:7645 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:7645 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     82.215.97.182:0 - "OPTIONS /kpi/login HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "POST /kpi/login HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "OPTIONS /kpi/stats?period=month HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/stats?period=month HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "OPTIONS /kpi/settings HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "OPTIONS /kpi/history HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "OPTIONS /kpi/chart HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "OPTIONS /kpi/stats?period=week HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "OPTIONS /kpi/compare HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/settings HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/history HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/chart HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/stats?period=week HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/compare HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/settings HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/history HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/chart HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/compare HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "OPTIONS /kpi/stats?period=day HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/stats?period=day HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/history HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/settings HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/chart HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/compare HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/stats?period=week HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/settings HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/history HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/chart HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/compare HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/stats?period=day HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/history HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/settings HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/chart HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/compare HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/stats?period=day HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/settings HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/history HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/chart HTTP/1.1" 200 OK
+INFO:     82.215.97.182:0 - "GET /kpi/compare HTTP/1.1" 200 OK

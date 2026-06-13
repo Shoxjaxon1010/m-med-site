@@ -1,0 +1,17 @@
+# Maxfiy ma'lumotlar — hech qachon GitHub'ga yuklanmaydi
+github_token.txt
+ngrok.yml
+
+# Loglar
+uvicorn-log.txt
+uvicorn-error.txt
+
+# Vaqtinchalik fayllar
+__pycache__/
+*.pyc
+*.zip
+
+# Katta fayllar
+ngrok.exe
+nssm.exe
+nssm-2.24/
